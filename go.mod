@@ -6,7 +6,6 @@ require (
 	github.com/a8m/envsubst v1.4.2
 	github.com/creasty/defaults v1.7.0
 	github.com/rs/zerolog v1.32.0
-	github.com/urfave/cli v1.22.14
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/xanzy/go-gitlab v0.103.0
 	golang.org/x/time v0.3.0
@@ -22,6 +21,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
