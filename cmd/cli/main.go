@@ -10,12 +10,11 @@ import (
 
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{})
-	
 
 	err := cli.InitCli()
 
 	if err != nil {
-		log.Logger.Debug().Err(err).Msg("Exited with an error");
+		log.Logger.Debug().Err(err).Msg("Exited with an error")
 		os.Exit(1)
 		return
 	}

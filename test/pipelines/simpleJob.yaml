@@ -1,3 +1,5 @@
+include: "/test/pipelines/simpleInclude.yaml"
+
 myjob:
   image: node:latest
   stage: init

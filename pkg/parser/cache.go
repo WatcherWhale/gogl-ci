@@ -1,7 +1,7 @@
 package parser
 
 type Cache struct {
-    Paths []string
+	Paths []string
 }
 
 func (cache *Cache) Parse(template any) error {

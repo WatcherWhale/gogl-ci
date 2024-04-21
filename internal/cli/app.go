@@ -8,7 +8,7 @@ import (
 
 func InitCli() error {
 	app := &cli.App{
-		Name: "gitlabci-test",
+		Name:    "gitlabci-test",
 		Version: "0.0.0",
 
 		Commands: []cli.Command{},

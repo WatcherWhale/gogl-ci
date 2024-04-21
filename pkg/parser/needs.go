@@ -1,8 +1,8 @@
 package parser
 
 type Need struct {
-    Job string
-    Artifacts bool
+	Job       string
+	Artifacts bool
 }
 
 func (need *Need) Parse(template any) error {

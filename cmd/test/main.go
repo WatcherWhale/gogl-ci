@@ -12,5 +12,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%v", pl.Jobs[0].String())
+	fmt.Printf("%v", pl.String())
 }

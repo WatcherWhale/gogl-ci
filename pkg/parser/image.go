@@ -5,11 +5,8 @@ import (
 	"reflect"
 )
 
-var _ parseable = &Image{}
-var _ parseable = (*Image)(nil)
-
 type Image struct {
-	Name string
+	Name       string
 	EntryPoint []string `default:"[]"`
 }
 

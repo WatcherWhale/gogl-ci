@@ -1,7 +1,7 @@
 package parser
 
 type AllowFailure struct {
-	AllowFailure bool `default:"false"`
+	AllowFailure          bool `default:"false"`
 	AllowFailureExitCodes []int
 }
 
