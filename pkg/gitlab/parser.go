@@ -52,6 +52,21 @@ func parseField(field *reflect.Value, key, value any) error {
 	return nil
 }
 
+func parseMap(structPtr *reflect.Value, template parsedMap) error {
+	keyMap := getFieldKeys(structPtr.Type())
+
+	for yamlKey, value := range template {
+		key := keyMap[yamlKey.(string)]
+		field := structPtr.FieldByName(key)
+
+		err := parseField(&field, key, value)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func parseSlice(field *reflect.Value, key, value any) error {
 	var valSlice []interface{}
 

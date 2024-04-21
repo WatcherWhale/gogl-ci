@@ -19,13 +19,10 @@ func (image *Image) Parse(template any) error {
 	}
 
 	if tmplType.Kind() == reflect.Map {
-		tmplMap := template.(parsedMap)
-		image.Name = tmplMap["name"].(string)
-
-		eps := tmplMap["entrypoint"].([]interface{})
-		image.EntryPoint = make([]string, len(eps))
-		for i, ep := range eps {
-			image.EntryPoint[i] = ep.(string)
+		value := reflect.ValueOf(image).Elem()
+		err := parseMap(&value, template.(parsedMap))
+		if err != nil {
+			return err
 		}
 
 		return nil

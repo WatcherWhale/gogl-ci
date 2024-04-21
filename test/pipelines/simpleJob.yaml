@@ -7,5 +7,7 @@ myjob:
     - .test
   needs:
     - lol
+    - job: test
+      artifacts: false
   script:
     - echo "hello world"
