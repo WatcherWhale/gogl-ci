@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/creasty/defaults"
+	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/file"
 )
 
 type Include struct {
@@ -46,14 +47,12 @@ func (include *Include) Parse(template any) error {
 
 func (include *Include) GetTemplate() (parsedMap, error) {
 	if include.Local {
-		return include.getLocalTemplate()
+		return file.GetTemplateFile(include.File[1:])
 	}
 
-	return nil, fmt.Errorf("error paring include: invalid syntax")
-}
+	if include.Web {
+		return file.GetTemplateWeb(include.File)
+	}
 
-func (include *Include) getLocalTemplate() (parsedMap, error) {
-	file := include.File[1:]
-
-	return getFileContents(file)
+	return nil, fmt.Errorf("error getting included template: invalid include syntax")
 }

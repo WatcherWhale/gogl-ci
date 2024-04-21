@@ -3,10 +3,10 @@ module github.com/watcherwhale/gitlabci-test
 go 1.21.4
 
 require (
+	github.com/a8m/envsubst v1.4.2
 	github.com/creasty/defaults v1.7.0
 	github.com/rs/zerolog v1.32.0
 	github.com/urfave/cli v1.22.14
-	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

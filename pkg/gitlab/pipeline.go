@@ -3,11 +3,10 @@ package gitlab
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
 
 	"github.com/creasty/defaults"
-	"gopkg.in/yaml.v2"
+	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/file"
 )
 
 type Pipeline struct {
@@ -108,10 +107,10 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 	return nil
 }
 
-func Parse(file string) (*Pipeline, error) {
+func Parse(fileName string) (*Pipeline, error) {
 	var pipeline Pipeline
 
-	template, err := getFileContents(file)
+	template, err := file.GetTemplateFile(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -122,20 +121,4 @@ func Parse(file string) (*Pipeline, error) {
 	}
 
 	return &pipeline, nil
-}
-
-func getFileContents(file string) (parsedMap, error) {
-	bytes, err := os.ReadFile(file)
-	if err != nil {
-		return nil, fmt.Errorf("file read error: %v", err)
-	}
-
-	pipelineMap := make(parsedMap)
-
-	err = yaml.Unmarshal(bytes, &pipelineMap)
-	if err != nil {
-		return nil, fmt.Errorf("yaml error: %v", err)
-	}
-
-	return pipelineMap, nil
 }
