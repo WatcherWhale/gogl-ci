@@ -14,7 +14,7 @@ func main() {
 	err := cli.InitCli()
 
 	if err != nil {
-		log.Logger.Debug().Err(err).Msg("Exited with an error")
+		log.Logger.Error().Err(err).Msg("Exited with an error")
 		os.Exit(1)
 		return
 	}

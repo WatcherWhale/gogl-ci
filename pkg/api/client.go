@@ -20,21 +20,3 @@ func Login(token string) error {
 	Client = client
 	return nil
 }
-
-func GetProjectFile(project string, file string, ref string) ([]byte, error) {
-	gitRef := ref
-	if ref == "" {
-		proj, _, err := Client.Projects.GetProject(project, &gitlab.GetProjectOptions{})
-		if err != nil {
-			return nil, err
-		}
-
-		gitRef = proj.DefaultBranch
-	}
-
-	bytes, _, err := Client.RepositoryFiles.GetRawFile(project, file, &gitlab.GetRawFileOptions{
-		Ref: gitlab.Ptr(gitRef),
-	})
-
-	return bytes, err
-}
