@@ -2,7 +2,7 @@ include: "/test/pipelines/simpleInclude.yaml"
 
 myjob:
   image: node:latest
-  stage: init
+    #stage: init
   extends:
     - .test
   needs:

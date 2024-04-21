@@ -18,14 +18,6 @@ type Pipeline struct {
 	Jobs map[string]Job `default:"{}"`
 
 	Default Job
-
-	Artifacts Artifacts
-	Cache     Cache
-
-	AllowFailure AllowFailure
-
-	BeforeScript []string `default:"[]" gitlabci:"before_script"`
-	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 }
 
 func (pipeline *Pipeline) String() string {
@@ -42,6 +34,8 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 	if err != nil {
 		return err
 	}
+
+	pipeline.Default._filled = true
 
 	keyMap := getFieldKeys(reflect.TypeOf(*pipeline))
 
@@ -104,6 +98,11 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 	// Append .pre and .post stages
 	if !recursive {
 		pipeline.Stages = append(append([]string{".pre"}, pipeline.Stages...), ".post")
+	}
+
+	for key, job := range pipeline.Jobs {
+		job.Fill(pipeline)
+		pipeline.Jobs[key] = job
 	}
 
 	return nil

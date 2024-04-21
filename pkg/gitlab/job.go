@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"slices"
 
 	"github.com/creasty/defaults"
 )
@@ -32,6 +33,7 @@ type Job struct {
 	Coverage string
 
 	_keysWithValue []string `default:"[]" parser:"ignore"`
+	_filled bool `default:"false" parser:"ignore"`
 }
 
 func (job *Job) Parse(name string, template parsedMap) error {
@@ -57,10 +59,42 @@ func (job *Job) Parse(name string, template parsedMap) error {
 		if err != nil {
 			return fmt.Errorf("error parsing key %s: %v", key, err)
 		}
+
+		job._keysWithValue = append(job._keysWithValue, key)
 	}
 
 	return nil
 }
+
+func (job *Job) Fill(pipeline *Pipeline) {
+	if job._filled {
+		return
+	}
+
+	job.fill(pipeline.Default)
+
+	for _, extendKey := range job.Extends {
+		extendJob := pipeline.Jobs[extendKey]
+		extendJob.Fill(pipeline)
+		job.fill(extendJob)
+	}
+
+	job._filled = true
+}
+
+func (job *Job) fill(template Job) {
+	jobVal := reflect.ValueOf(job).Elem()
+	templateVal := reflect.ValueOf(template)
+
+	for _, fieldName := range template._keysWithValue {
+		if slices.Contains(job._keysWithValue, fieldName) {
+			continue
+		}
+
+		jobVal.FieldByName(fieldName).Set(templateVal.FieldByName(fieldName))
+	}
+}
+
 
 func (job *Job) String() string {
 	bytes, err := json.Marshal(job)
