@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-type parsedMap map[any]any
-
 func getFieldKeys(structVal reflect.Type) map[string]string {
 	valMap := make(map[string]string)
 
@@ -52,7 +50,7 @@ func parseField(field *reflect.Value, key, value any) error {
 	return nil
 }
 
-func parseMap(structPtr *reflect.Value, template parsedMap) error {
+func parseMap(structPtr *reflect.Value, template map[any]any) error {
 	keyMap := getFieldKeys(structPtr.Type())
 
 	for yamlKey, value := range template {

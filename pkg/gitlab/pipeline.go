@@ -28,7 +28,7 @@ func (pipeline *Pipeline) String() string {
 	return string(bytes)
 }
 
-func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
+func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 	err := defaults.Set(pipeline)
 	if err != nil {
 		return err
@@ -55,13 +55,15 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 				return err
 			}
 
-			template, err := pipeline.Include[i].GetTemplate()
+			templates, err := pipeline.Include[i].GetTemplate()
 			if err != nil {
 				return err
 			}
-			err = pipeline.Parse(template, true)
-			if err != nil {
-				return err
+			for _, template := range templates {
+				err = pipeline.Parse(template, true)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -77,7 +79,7 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 		// If key is not known assume a job is found
 		if !ok {
 			var job Job
-			err := job.Parse(yamlKey.(string), value.(parsedMap))
+			err := job.Parse(yamlKey.(string), value.(map[any]any))
 			if err != nil {
 				return err
 			}

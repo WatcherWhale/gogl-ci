@@ -36,7 +36,7 @@ type Job struct {
 	_filled        bool     `default:"false" parser:"ignore"`
 }
 
-func (job *Job) Parse(name string, template parsedMap) error {
+func (job *Job) Parse(name string, template map[any]any) error {
 	err := defaults.Set(job)
 
 	if err != nil {

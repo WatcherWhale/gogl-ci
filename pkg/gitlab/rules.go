@@ -19,7 +19,7 @@ func (rule *Rule) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(rule).Elem()
-		err := parseMap(&value, template.(parsedMap))
+		err := parseMap(&value, template.(map[any]any))
 		if err != nil {
 			return err
 		}

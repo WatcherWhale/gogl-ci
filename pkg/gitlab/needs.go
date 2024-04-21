@@ -33,7 +33,7 @@ func (need *Need) Parse(template any) error {
 
 	if tmplVal.Kind() == reflect.Map {
 		value := reflect.ValueOf(need).Elem()
-		err := parseMap(&value, template.(parsedMap))
+		err := parseMap(&value, template.(map[any]any))
 		if err != nil {
 			return err
 		}
