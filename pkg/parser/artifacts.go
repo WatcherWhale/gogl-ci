@@ -3,8 +3,8 @@ package parser
 import "github.com/creasty/defaults"
 
 type Artifacts struct {
-	Paths    []string `defaults:"[]"`
-	Exclude  []string `defaults:"[]"`
+	Paths    []string `default:"[]"`
+	Exclude  []string `default:"[]"`
 	ExpireIn string
 	ExposeAs string
 	Name     string
