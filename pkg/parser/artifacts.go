@@ -1,8 +1,10 @@
 package parser
 
+import "github.com/creasty/defaults"
+
 type Artifacts struct {
-	Paths    []string
-	Exclude  []string
+	Paths    []string `defaults:"[]"`
+	Exclude  []string `defaults:"[]"`
 	ExpireIn string
 	ExposeAs string
 	Name     string
@@ -11,5 +13,10 @@ type Artifacts struct {
 }
 
 func (a *Artifacts) Parse(template any) error {
+	err := defaults.Set(a)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

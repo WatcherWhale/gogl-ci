@@ -27,6 +27,8 @@ func (image *Image) Parse(template any) error {
 		for i, ep := range eps {
 			image.EntryPoint[i] = ep.(string)
 		}
+
+		return nil
 	}
 
 	return fmt.Errorf("cannot parse image field")

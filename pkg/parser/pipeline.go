@@ -13,15 +13,15 @@ import (
 )
 
 type Pipeline struct {
-	Stages  []string       `default:"[\"build\", \"test\", \"deploy\"]"`
-	Include []Include      `default:"[]"`
-	Jobs    map[string]Job `default:"{}"`
-	Default Job
-	Artifacts Artifacts
-	Cache     Cache
+	Stages       []string       `default:"[\"build\", \"test\", \"deploy\"]"`
+	Include      []Include      `default:"[]"`
+	Jobs         map[string]Job `default:"{}"`
+	Default      Job
+	Artifacts    Artifacts
+	Cache        Cache
 	AllowFailure AllowFailure
-	BeforeScript []string
-	AfterScript  []string
+	BeforeScript []string `default:"[]"`
+	AfterScript  []string `default:"[]"`
 }
 
 func (pipeline *Pipeline) String() string {
@@ -33,7 +33,7 @@ func (pipeline *Pipeline) String() string {
 	return string(bytes)
 }
 
-func (pipeline *Pipeline) Parse(template parsedMap) error {
+func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 	err := defaults.Set(pipeline)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (pipeline *Pipeline) Parse(template parsedMap) error {
 			if err != nil {
 				return err
 			}
-			err = pipeline.Parse(template)
+			err = pipeline.Parse(template, true)
 			if err != nil {
 				return err
 			}
@@ -76,7 +76,11 @@ func (pipeline *Pipeline) Parse(template parsedMap) error {
 
 		if !field.IsValid() {
 			var job Job
-			job.Parse(key.(string), value.(parsedMap))
+			err := job.Parse(key.(string), value.(parsedMap))
+			if err != nil {
+				return err
+			}
+
 			pipeline.Jobs[key.(string)] = job
 			continue
 		}
@@ -85,6 +89,11 @@ func (pipeline *Pipeline) Parse(template parsedMap) error {
 		if err != nil {
 			return fmt.Errorf("error parsing key %s: %v", key.(string), err)
 		}
+	}
+
+	// Append .pre and .post stages
+	if !recursive {
+		pipeline.Stages = append(append([]string{".pre"}, pipeline.Stages...), ".post")
 	}
 
 	return nil
@@ -98,7 +107,7 @@ func Parse(file string) (*Pipeline, error) {
 		return nil, err
 	}
 
-	err = pipeline.Parse(template)
+	err = pipeline.Parse(template, false)
 	if err != nil {
 		return nil, err
 	}

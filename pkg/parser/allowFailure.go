@@ -1,8 +1,8 @@
 package parser
 
 type AllowFailure struct {
-	AllowFailure          bool `default:"false"`
-	AllowFailureExitCodes []int
+	AllowFailure          bool  `default:"false"`
+	AllowFailureExitCodes []int `default:"[]"`
 }
 
 func (a *AllowFailure) Parse(template any) error {
