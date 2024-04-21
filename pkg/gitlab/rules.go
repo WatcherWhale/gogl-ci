@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 type Rule struct {
 	If                    string

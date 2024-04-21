@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 import "github.com/creasty/defaults"
 

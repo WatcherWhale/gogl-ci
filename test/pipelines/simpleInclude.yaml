@@ -1,4 +1,6 @@
-myjobincluded:
-  image:
-    name: bash:latest
-    entrypoint: [""]
+.test:
+  stage: overwritten
+  before_script:
+    - echo ""
+  script:
+    - echo "script"

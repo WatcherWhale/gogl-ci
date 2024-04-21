@@ -1,10 +1,33 @@
-package parser
+package gitlab
 
 import (
 	"reflect"
+	"strings"
 )
 
 type parsedMap map[any]any
+
+func getFieldKeys(structVal reflect.Type) map[string]string {
+	valMap := make(map[string]string)
+
+	for i := 0; i < structVal.NumField(); i++ {
+		val := structVal.Field(i)
+
+		if instruction, ok := val.Tag.Lookup("parser"); ok {
+			if instruction == "ignore" {
+				continue
+			}
+		}
+
+		if key, ok := val.Tag.Lookup("gitlabci"); ok {
+			valMap[key] = val.Name
+		} else {
+			valMap[strings.ToLower(val.Name)] = val.Name
+		}
+	}
+
+	return valMap
+}
 
 func parseField(field *reflect.Value, key, value any) error {
 	switch field.Kind() {

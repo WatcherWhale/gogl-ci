@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 type AllowFailure struct {
 	AllowFailure          bool  `default:"false"`

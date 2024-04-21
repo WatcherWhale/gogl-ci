@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 type Need struct {
 	Job       string

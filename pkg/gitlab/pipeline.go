@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 import (
 	"encoding/json"
@@ -7,21 +7,25 @@ import (
 	"reflect"
 
 	"github.com/creasty/defaults"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"gopkg.in/yaml.v2"
 )
 
 type Pipeline struct {
-	Stages       []string       `default:"[\"build\", \"test\", \"deploy\"]"`
-	Include      []Include      `default:"[]"`
-	Jobs         map[string]Job `default:"{}"`
-	Default      Job
-	Artifacts    Artifacts
-	Cache        Cache
+	Stages []string `default:"[\"build\", \"test\", \"deploy\"]"`
+
+	Include []Include `default:"[]"`
+
+	Jobs map[string]Job `default:"{}"`
+
+	Default Job
+
+	Artifacts Artifacts
+	Cache     Cache
+
 	AllowFailure AllowFailure
-	BeforeScript []string `default:"[]"`
-	AfterScript  []string `default:"[]"`
+
+	BeforeScript []string `default:"[]" gitlabci:"before_script"`
+	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 }
 
 func (pipeline *Pipeline) String() string {
@@ -39,6 +43,9 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 		return err
 	}
 
+	keyMap := getFieldKeys(reflect.TypeOf(*pipeline))
+
+	// Parse includes first, so overwriting works
 	if includes, ok := template["include"]; ok {
 		var slice []any
 		rIncl := reflect.ValueOf(includes)
@@ -67,27 +74,30 @@ func (pipeline *Pipeline) Parse(template parsedMap, recursive bool) error {
 	}
 
 	structPtr := reflect.ValueOf(pipeline).Elem()
-	for key, value := range template {
-		if key.(string) == "include" {
+	for yamlKey, value := range template {
+		if yamlKey.(string) == "include" {
 			continue
 		}
 
-		field := structPtr.FieldByName(cases.Title(language.English, cases.Compact).String(key.(string)))
+		key, ok := keyMap[yamlKey.(string)]
 
-		if !field.IsValid() {
+		// If key is not known assume a job is found
+		if !ok {
 			var job Job
-			err := job.Parse(key.(string), value.(parsedMap))
+			err := job.Parse(yamlKey.(string), value.(parsedMap))
 			if err != nil {
 				return err
 			}
 
-			pipeline.Jobs[key.(string)] = job
+			pipeline.Jobs[yamlKey.(string)] = job
 			continue
 		}
 
+		// Parse field
+		field := structPtr.FieldByName(key)
 		err := parseField(&field, key, value)
 		if err != nil {
-			return fmt.Errorf("error parsing key %s: %v", key.(string), err)
+			return fmt.Errorf("error parsing key %s: %v", key, err)
 		}
 	}
 

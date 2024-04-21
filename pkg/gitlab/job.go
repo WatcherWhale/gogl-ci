@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 import (
 	"encoding/json"
@@ -6,8 +6,6 @@ import (
 	"reflect"
 
 	"github.com/creasty/defaults"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 type Job struct {
@@ -18,20 +16,22 @@ type Job struct {
 	Stage string `default:"test"`
 
 	Script       []string
-	BeforeScript []string
-	AfterScript  []string
+	BeforeScript []string `default:"[]" gitlabci:"before_script"`
+	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 
 	Needs        []Need
 	Dependencies []string
 
 	Extends []string
 
-	AllowFailure AllowFailure
+	AllowFailure AllowFailure `gitlabci:"allow_failure"`
 
 	Artifacts Artifacts
 	Cache     Cache
 
 	Coverage string
+
+	_keysWithValue []string `default:"[]" parser:"ignore"`
 }
 
 func (job *Job) Parse(name string, template parsedMap) error {
@@ -41,14 +41,21 @@ func (job *Job) Parse(name string, template parsedMap) error {
 		return fmt.Errorf("setting defaults error: %v", err)
 	}
 
+	keyMap := getFieldKeys(reflect.TypeOf(*job))
+
 	job.Name = name
 
 	structPtr := reflect.ValueOf(job).Elem()
-	for key, value := range template {
-		field := structPtr.FieldByName(cases.Title(language.English, cases.Compact).String(key.(string)))
+	for yamlKey, value := range template {
+		key, ok := keyMap[yamlKey.(string)]
+		if !ok {
+			return fmt.Errorf("error parsing job: unknown key %s", yamlKey.(string))
+		}
+
+		field := structPtr.FieldByName(key)
 		err := parseField(&field, key, value)
 		if err != nil {
-			return fmt.Errorf("error parsing key %s: %v", key.(string), err)
+			return fmt.Errorf("error parsing key %s: %v", key, err)
 		}
 	}
 

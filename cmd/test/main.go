@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/watcherwhale/gitlabci-test/pkg/parser"
+	"github.com/watcherwhale/gitlabci-test/pkg/gitlab"
 )
 
 func main() {
-	pl, err := parser.Parse("test/pipelines/simpleJob.yaml")
+	pl, err := gitlab.Parse("test/pipelines/simpleJob.yaml")
 	if err != nil {
 		panic(err)
 	}

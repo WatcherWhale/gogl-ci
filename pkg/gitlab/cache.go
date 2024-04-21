@@ -1,4 +1,4 @@
-package parser
+package gitlab
 
 type Cache struct {
 	Paths []string `default:"[]"`
