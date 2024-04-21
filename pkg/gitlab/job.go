@@ -33,7 +33,7 @@ type Job struct {
 	Coverage string
 
 	_keysWithValue []string `default:"[]" parser:"ignore"`
-	_filled bool `default:"false" parser:"ignore"`
+	_filled        bool     `default:"false" parser:"ignore"`
 }
 
 func (job *Job) Parse(name string, template parsedMap) error {
@@ -94,7 +94,6 @@ func (job *Job) fill(template Job) {
 		jobVal.FieldByName(fieldName).Set(templateVal.FieldByName(fieldName))
 	}
 }
-
 
 func (job *Job) String() string {
 	bytes, err := json.Marshal(job)
