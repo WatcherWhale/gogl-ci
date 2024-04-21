@@ -55,29 +55,6 @@ func (job *Job) Parse(name string, template parsedMap) error {
 	return nil
 }
 
-func parseField(field *reflect.Value, key, value any) error {
-	switch field.Kind() {
-	case reflect.String:
-		field.SetString(value.(string))
-	case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64:
-		field.SetInt(value.(int64))
-	case reflect.Bool:
-		field.SetBool(value.(bool))
-	case reflect.Struct:
-		err := parseStruct(field, key, value)
-		if err != nil {
-			return err
-		}
-	case reflect.Slice:
-		err := parseSlice(field, key, value)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (job *Job) String() string {
 	bytes, err := json.Marshal(job)
 	if err != nil {

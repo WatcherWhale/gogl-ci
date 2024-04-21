@@ -19,9 +19,14 @@ func (image *Image) Parse(template any) error {
 	}
 
 	if tmplType.Kind() == reflect.Map {
-		tmplMap := template.(map[string]interface{})
+		tmplMap := template.(parsedMap)
 		image.Name = tmplMap["name"].(string)
-		image.EntryPoint = tmplMap["entrypoint"].([]string)
+
+		eps := tmplMap["entrypoint"].([]interface{})
+		image.EntryPoint = make([]string, len(eps))
+		for i, ep := range eps {
+			image.EntryPoint[i] = ep.(string)
+		}
 	}
 
 	return fmt.Errorf("cannot parse image field")

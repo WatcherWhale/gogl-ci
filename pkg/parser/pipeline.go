@@ -7,6 +7,8 @@ import (
 	"reflect"
 
 	"github.com/creasty/defaults"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gopkg.in/yaml.v2"
 )
 
@@ -14,6 +16,12 @@ type Pipeline struct {
 	Stages  []string       `default:"[\"build\", \"test\", \"deploy\"]"`
 	Include []Include      `default:"[]"`
 	Jobs    map[string]Job `default:"{}"`
+	Default Job
+	Artifacts Artifacts
+	Cache     Cache
+	AllowFailure AllowFailure
+	BeforeScript []string
+	AfterScript  []string
 }
 
 func (pipeline *Pipeline) String() string {
@@ -58,13 +66,25 @@ func (pipeline *Pipeline) Parse(template parsedMap) error {
 		}
 	}
 
-	rPipeline := reflect.ValueOf()
+	structPtr := reflect.ValueOf(pipeline).Elem()
 	for key, value := range template {
 		if key.(string) == "include" {
 			continue
 		}
 
-		
+		field := structPtr.FieldByName(cases.Title(language.English, cases.Compact).String(key.(string)))
+
+		if !field.IsValid() {
+			var job Job
+			job.Parse(key.(string), value.(parsedMap))
+			pipeline.Jobs[key.(string)] = job
+			continue
+		}
+
+		err := parseField(&field, key, value)
+		if err != nil {
+			return fmt.Errorf("error parsing key %s: %v", key.(string), err)
+		}
 	}
 
 	return nil

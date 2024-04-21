@@ -1,3 +1,8 @@
 stages:
   - hello
   - world
+
+myjobincluded:
+  image:
+    name: bash:latest
+    entrypoint: [""]

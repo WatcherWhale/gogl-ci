@@ -6,6 +6,29 @@ import (
 
 type parsedMap map[any]any
 
+func parseField(field *reflect.Value, key, value any) error {
+	switch field.Kind() {
+	case reflect.String:
+		field.SetString(value.(string))
+	case reflect.Int, reflect.Int8, reflect.Int32, reflect.Int64:
+		field.SetInt(value.(int64))
+	case reflect.Bool:
+		field.SetBool(value.(bool))
+	case reflect.Struct:
+		err := parseStruct(field, key, value)
+		if err != nil {
+			return err
+		}
+	case reflect.Slice:
+		err := parseSlice(field, key, value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func parseSlice(field *reflect.Value, key, value any) error {
 	var valSlice []interface{}
 
@@ -51,4 +74,3 @@ func parseStruct(field *reflect.Value, _, value any) error {
 
 	return nil
 }
-
