@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/file"
 )
 
@@ -15,6 +16,8 @@ type Pipeline struct {
 	Include []Include `default:"[]"`
 
 	Jobs map[string]Job `default:"{}"`
+
+	Variables map[string]string
 
 	Default Job
 }
@@ -38,6 +41,7 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 
 	keyMap := getFieldKeys(reflect.TypeOf(*pipeline))
 
+	log.Logger.Trace().Msg("parsing includes")
 	// Parse includes first, so overwriting works
 	if includes, ok := template["include"]; ok {
 		var slice []any
@@ -48,12 +52,16 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 			slice = []any{includes}
 		}
 
-		pipeline.Include = make([]Include, len(slice))
-		for i, val := range slice {
-			err := pipeline.Include[i].Parse(val)
+		for _, val := range slice {
+			log.Logger.Trace().Msgf("parsing include %v", val)
+			var newInclude Include
+			err := newInclude.Parse(val)
 			if err != nil {
 				return err
 			}
+
+			pipeline.Include = append(pipeline.Include, newInclude)
+			i := len(pipeline.Include) - 1
 
 			templates, err := pipeline.Include[i].GetTemplate()
 			if err != nil {
@@ -75,6 +83,7 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 		}
 
 		key, ok := keyMap[yamlKey.(string)]
+		log.Logger.Trace().Msgf("parsing %s", yamlKey.(string))
 
 		// If key is not known assume a job is found
 		if !ok {

@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{})
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	err := cli.InitCli()
 

@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
 )
 
 type Job struct {
@@ -20,6 +21,7 @@ type Job struct {
 	BeforeScript []string `default:"[]" gitlabci:"before_script"`
 	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 
+	Rules        []Rule
 	Needs        []Need
 	Dependencies []string
 
@@ -49,8 +51,11 @@ func (job *Job) Parse(name string, template map[any]any) error {
 
 	structPtr := reflect.ValueOf(job).Elem()
 	for yamlKey, value := range template {
+		log.Logger.Trace().Msgf("parsing %s", yamlKey.(string))
+		log.Logger.Trace().Msgf("value %v", value)
 		key, ok := keyMap[yamlKey.(string)]
 		if !ok {
+			continue
 			return fmt.Errorf("error parsing job: unknown key %s", yamlKey.(string))
 		}
 

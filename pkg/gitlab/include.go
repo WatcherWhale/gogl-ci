@@ -66,7 +66,7 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 	}
 
 	if include.Remote != "" {
-		templ, err :=  file.GetTemplateWeb(include.Remote)
+		templ, err := file.GetTemplateWeb(include.Remote)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +76,7 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 	if include.Project != "" {
 		templArr := make([]map[any]any, len(include.File))
 		for i, fileName := range include.File {
-			templ, err :=  file.GetTemplateProject(fileName[1:], include.Project, include.Ref)
+			templ, err := file.GetTemplateProject(fileName[1:], include.Project, include.Ref)
 			if err != nil {
 				return nil, err
 			}
