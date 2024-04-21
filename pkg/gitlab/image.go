@@ -31,5 +31,5 @@ func (image *Image) Parse(template any) error {
 		return nil
 	}
 
-	return fmt.Errorf("cannot parse image field")
+	return fmt.Errorf("cannot parse image")
 }

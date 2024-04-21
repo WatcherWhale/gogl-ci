@@ -1,7 +1,5 @@
 package gitlab
 
-import "github.com/creasty/defaults"
-
 type Artifacts struct {
 	Paths    []string `default:"[]"`
 	Exclude  []string `default:"[]"`
@@ -13,10 +11,5 @@ type Artifacts struct {
 }
 
 func (a *Artifacts) Parse(template any) error {
-	err := defaults.Set(a)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
