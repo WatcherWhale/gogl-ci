@@ -58,6 +58,15 @@ func (pipeline *Pipeline) Parse(template parsedMap) error {
 		}
 	}
 
+	rPipeline := reflect.ValueOf()
+	for key, value := range template {
+		if key.(string) == "include" {
+			continue
+		}
+
+		
+	}
+
 	return nil
 }
 
