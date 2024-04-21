@@ -1,0 +1,7 @@
+myjob:
+  image: node:latest
+  stage: init
+  needs:
+    - lol
+  script:
+    - echo "hello world"
