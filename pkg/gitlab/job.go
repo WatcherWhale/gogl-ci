@@ -25,6 +25,10 @@ type Job struct {
 	Needs        []Need
 	Dependencies []string
 
+	Variables map[string]string
+
+	Interruptible bool
+
 	Extends []string
 
 	AllowFailure AllowFailure `gitlabci:"allow_failure"`
@@ -51,12 +55,10 @@ func (job *Job) Parse(name string, template map[any]any) error {
 
 	structPtr := reflect.ValueOf(job).Elem()
 	for yamlKey, value := range template {
-		log.Logger.Trace().Msgf("parsing %s", yamlKey.(string))
-		log.Logger.Trace().Msgf("value %v", value)
 		key, ok := keyMap[yamlKey.(string)]
 		if !ok {
+			log.Logger.Warn().Msgf("found unknown keyword %s", yamlKey.(string))
 			continue
-			return fmt.Errorf("error parsing job: unknown key %s", yamlKey.(string))
 		}
 
 		field := structPtr.FieldByName(key)

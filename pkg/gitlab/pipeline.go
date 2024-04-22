@@ -4,22 +4,37 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"slices"
 
 	"github.com/creasty/defaults"
-	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/file"
 )
 
 type Pipeline struct {
 	Stages []string `default:"[\"build\", \"test\", \"deploy\"]"`
 
-	Include []Include `default:"[]"`
+	Include         []Include `default:"[]"`
+	_parsedIncludes []string  `default:"[]"`
 
 	Jobs map[string]Job `default:"{}"`
 
 	Variables map[string]string
 
+	WorkFlow WorkFlow
+
 	Default Job
+}
+
+func (pipeline *Pipeline) GetJobs() map[string]Job {
+	jobMap := make(map[string]Job)
+
+	for name, job := range pipeline.Jobs {
+		if name[0:1] != "." {
+			jobMap[name] = job
+		}
+	}
+
+	return jobMap
 }
 
 func (pipeline *Pipeline) String() string {
@@ -31,7 +46,7 @@ func (pipeline *Pipeline) String() string {
 	return string(bytes)
 }
 
-func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
+func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentInclude *Include) error {
 	err := defaults.Set(pipeline)
 	if err != nil {
 		return err
@@ -41,7 +56,6 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 
 	keyMap := getFieldKeys(reflect.TypeOf(*pipeline))
 
-	log.Logger.Trace().Msg("parsing includes")
 	// Parse includes first, so overwriting works
 	if includes, ok := template["include"]; ok {
 		var slice []any
@@ -53,22 +67,36 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 		}
 
 		for _, val := range slice {
-			log.Logger.Trace().Msgf("parsing include %v", val)
 			var newInclude Include
+
+			// Parse include
 			err := newInclude.Parse(val)
 			if err != nil {
 				return err
 			}
 
-			pipeline.Include = append(pipeline.Include, newInclude)
-			i := len(pipeline.Include) - 1
+			// Set parent
+			newInclude._parent = parentInclude
 
-			templates, err := pipeline.Include[i].GetTemplate()
+			// Skip already parsed includes
+			if slices.Contains(pipeline._parsedIncludes, newInclude.hash()) {
+				continue
+			}
+
+			// Add include
+			pipeline.Include = append(pipeline.Include, newInclude)
+			pipeline._parsedIncludes = append(pipeline._parsedIncludes, newInclude.hash())
+
+			// Get include pipeline templates
+			templates, err := newInclude.GetTemplate()
 			if err != nil {
 				return err
 			}
+
+			// Parse include templates into pipeline
+			i := len(pipeline.Include) - 1
 			for _, template := range templates {
-				err = pipeline.Parse(template, true)
+				err = pipeline.parse(template, true, &pipeline.Include[i])
 				if err != nil {
 					return err
 				}
@@ -76,14 +104,21 @@ func (pipeline *Pipeline) Parse(template map[any]any, recursive bool) error {
 		}
 	}
 
+	if defaultTmpl, ok := template["default"]; ok {
+		pipeline.Default = Job{}
+		err := pipeline.Default.Parse("default", defaultTmpl.(map[any]any))
+		if err != nil {
+			return err
+		}
+	}
+
 	structPtr := reflect.ValueOf(pipeline).Elem()
 	for yamlKey, value := range template {
-		if yamlKey.(string) == "include" {
+		if yamlKey.(string) == "include" || yamlKey.(string) == "default" {
 			continue
 		}
 
 		key, ok := keyMap[yamlKey.(string)]
-		log.Logger.Trace().Msgf("parsing %s", yamlKey.(string))
 
 		// If key is not known assume a job is found
 		if !ok {
@@ -126,7 +161,7 @@ func Parse(fileName string) (*Pipeline, error) {
 		return nil, err
 	}
 
-	err = pipeline.Parse(template, false)
+	err = pipeline.parse(template, false, nil)
 	if err != nil {
 		return nil, err
 	}

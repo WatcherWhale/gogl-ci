@@ -11,8 +11,8 @@ type Rule struct {
 	If           string
 	When         string
 	AllowFailure AllowFailure `gitlabci:"allow_failure"`
-	Changes      []string
-	_reference   string
+	//Changes      []string
+	_reference string
 }
 
 func (rule *Rule) Parse(template any) error {

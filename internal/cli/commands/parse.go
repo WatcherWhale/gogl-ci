@@ -16,8 +16,9 @@ var ParseCommand cli.Command = cli.Command{
 			return err
 		}
 
-		fmt.Println(pipeline.String())
-
+		for k := range pipeline.GetJobs() {
+			fmt.Println(k)
+		}
 		return nil
 	},
 }

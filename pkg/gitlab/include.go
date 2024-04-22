@@ -19,6 +19,13 @@ type Include struct {
 	Inputs    map[string]string `default:"{}"`
 	Ref       string
 	Rules     []Rule `default:"[]"`
+	_parent   *Include
+}
+
+func (include *Include) hash() string {
+	_, project, ref := include.isProject()
+
+	return fmt.Sprintf("%v-%s-%s-%s-%s", include.File, include.Local, include.Remote, project, ref)
 }
 
 func (include *Include) Parse(template any) error {
@@ -56,13 +63,36 @@ func (include *Include) Parse(template any) error {
 	return nil
 }
 
+func (include *Include) isProject() (bool, string, string) {
+	if include.Project != "" {
+		return true, include.Project, include.Ref
+	}
+
+	if include._parent == nil {
+		return false, "", ""
+	}
+
+	return include._parent.isProject()
+}
+
 func (include *Include) GetTemplate() ([]map[any]any, error) {
 	if include.Local != "" {
-		templ, err := file.GetTemplateFile(include.Local[1:])
-		if err != nil {
-			return nil, err
+		isProject, proj, ref := include.isProject()
+		if !isProject {
+			// This is a real local file
+			templ, err := file.GetTemplateFile(include.Local[1:])
+			if err != nil {
+				return nil, err
+			}
+			return []map[any]any{templ}, nil
+		} else {
+			// This include was included from another project, loading it from this project instead
+			templ, err := file.GetTemplateProject(include.Local[1:], proj, ref)
+			if err != nil {
+				return nil, err
+			}
+			return []map[any]any{templ}, nil
 		}
-		return []map[any]any{templ}, nil
 	}
 
 	if include.Remote != "" {
@@ -83,6 +113,7 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 
 			templArr[i] = templ
 		}
+		return templArr, nil
 	}
 
 	return nil, fmt.Errorf("error getting included template: invalid include syntax")
