@@ -17,7 +17,6 @@ var ParseCommand cli.Command = cli.Command{
 
 		_ := graph.CalculateJobGraph(*pipeline)
 
-
 		return nil
 	},
 }
