@@ -6,9 +6,9 @@ import (
 )
 
 type WorkFlow struct {
-	Name string
+	Name       string
 	AutoCancel AutoCancel `gitlabci:"auto_cancel"`
-	Rules []WorkflowRule
+	Rules      []WorkflowRule
 }
 
 func (workflow *WorkFlow) Parse(template any) error {
@@ -28,7 +28,7 @@ func (workflow *WorkFlow) Parse(template any) error {
 }
 
 type AutoCancel struct {
-	Commit string `gitlabci:"on_new_commit"`
+	Commit     string `gitlabci:"on_new_commit"`
 	JobFailure string `gitlabci:"on_job_failure"`
 }
 

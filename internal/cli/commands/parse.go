@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli/v2"
 	"github.com/watcherwhale/gitlabci-test/pkg/gitlab"
+	"github.com/watcherwhale/gitlabci-test/pkg/graph"
 )
 
 var ParseCommand cli.Command = cli.Command{
@@ -16,9 +15,9 @@ var ParseCommand cli.Command = cli.Command{
 			return err
 		}
 
-		for k := range pipeline.GetJobs() {
-			fmt.Println(k)
-		}
+		_ := graph.CalculateJobGraph(*pipeline)
+
+
 		return nil
 	},
 }
