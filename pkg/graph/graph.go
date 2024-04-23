@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"github.com/watcherwhale/gitlabci-test/pkg/gitlab"
+	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 )
 
 type JobGraph struct {

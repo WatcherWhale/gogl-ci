@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/watcherwhale/gitlabci-test/internal/cli"
+	"github.com/watcherwhale/gogl-ci/internal/cli"
 )
 
 func main() {

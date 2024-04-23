@@ -1,4 +1,4 @@
-module github.com/watcherwhale/gitlabci-test
+module github.com/watcherwhale/gogl-ci
 
 go 1.21.4
 

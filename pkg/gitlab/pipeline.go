@@ -7,7 +7,7 @@ import (
 	"slices"
 
 	"github.com/creasty/defaults"
-	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/file"
+	"github.com/watcherwhale/gogl-ci/pkg/gitlab/file"
 )
 
 type Pipeline struct {

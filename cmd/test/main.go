@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/watcherwhale/gitlabci-test/pkg/gitlab/rules/lexer"
+	"github.com/watcherwhale/gogl-ci/pkg/gitlab/rules/lexer"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/watcherwhale/gitlabci-test/internal/util"
+	"github.com/watcherwhale/gogl-ci/internal/util"
 )
 
 type Rule struct {

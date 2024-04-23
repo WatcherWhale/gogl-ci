@@ -5,13 +5,14 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
-	"github.com/watcherwhale/gitlabci-test/internal/cli/commands"
-	"github.com/watcherwhale/gitlabci-test/pkg/api"
+	"github.com/watcherwhale/gogl-ci/internal/cli/commands"
+	"github.com/watcherwhale/gogl-ci/pkg/api"
 )
 
 func InitCli() error {
 	app := &cli.App{
-		Name:    "gitlabci-test",
+		Name:    "Gogl",
+		Description: "A cli tool for getting insight into your gitlab pipelines",
 		Version: "0.0.0",
 
 		Commands: []*cli.Command{

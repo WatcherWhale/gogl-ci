@@ -2,8 +2,8 @@ package commands
 
 import (
 	"github.com/urfave/cli/v2"
-	"github.com/watcherwhale/gitlabci-test/pkg/gitlab"
-	"github.com/watcherwhale/gitlabci-test/pkg/graph"
+	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
+	"github.com/watcherwhale/gogl-ci/pkg/graph"
 )
 
 var ParseCommand cli.Command = cli.Command{
