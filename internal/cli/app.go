@@ -11,9 +11,9 @@ import (
 
 func InitCli() error {
 	app := &cli.App{
-		Name:    "Gogl",
+		Name:        "Gogl",
 		Description: "A cli tool for getting insight into your gitlab pipelines",
-		Version: "0.0.0",
+		Version:     "0.0.0",
 
 		Commands: []*cli.Command{
 			&commands.ParseCommand,

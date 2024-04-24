@@ -1,0 +1,24 @@
+apiVersion: test.gogl.ci/v1alpha1
+kind: TestPlan
+metadata:
+  name: example
+  labels:
+    example: "true"
+spec:
+  pipeline:
+    branch: "master"
+    variables:
+      CI_COMMIT_TARGET_BRANCH: ""
+  tests:
+    - name: Check if the Job job1 exists
+      job: job1
+
+    - name: Check if the Job job3 does not exist
+      job: job3
+      present: false
+
+    - name: Check if job2 depends on job1
+      job: job2
+      dependsOn:
+        - job1
+
