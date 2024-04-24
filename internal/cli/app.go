@@ -17,6 +17,7 @@ func InitCli() error {
 
 		Commands: []*cli.Command{
 			&commands.ParseCommand,
+			&commands.TestCommand,
 		},
 
 		Before: func(ctx *cli.Context) error {

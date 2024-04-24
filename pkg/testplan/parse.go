@@ -4,16 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 	"github.com/watcherwhale/gogl-ci/pkg/testplan/api/meta"
 	v1alpha1 "github.com/watcherwhale/gogl-ci/pkg/testplan/api/v1alpha1"
 )
 
-type TestPlan interface {
-	Validate(*gitlab.Pipeline) (bool, error)
-}
-
-func ParseFile(file string) (TestPlan, error) {
+func ParseFile(file string) (*v1alpha1.TestPlan, error) {
 	yamlSrc, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -22,7 +17,7 @@ func ParseFile(file string) (TestPlan, error) {
 	return ParseSpec(yamlSrc)
 }
 
-func ParseSpec(yamlSource []byte) (TestPlan, error) {
+func ParseSpec(yamlSource []byte) (*v1alpha1.TestPlan, error) {
 	kind, err := meta.GetAPiKind(yamlSource)
 	if err != nil {
 		return nil, err
@@ -32,10 +27,10 @@ func ParseSpec(yamlSource []byte) (TestPlan, error) {
 		return nil, fmt.Errorf("yaml is not a TestPlan")
 	}
 
-	switch kind.Kind {
+	switch kind.Version {
 	case "test.gogl.ci/v1alpha1":
 		return v1alpha1.LoadPlan(yamlSource)
 	default:
-		return nil, fmt.Errorf("unknown api version")
+		return nil, fmt.Errorf("unknown api version '%s'", kind.Version)
 	}
 }
