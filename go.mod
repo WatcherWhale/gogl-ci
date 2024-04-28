@@ -3,7 +3,6 @@ module github.com/watcherwhale/gogl-ci
 go 1.21.4
 
 require (
-	github.com/a8m/envsubst v1.4.2
 	github.com/creasty/defaults v1.7.0
 	github.com/rs/zerolog v1.32.0
 	github.com/urfave/cli/v2 v2.27.1

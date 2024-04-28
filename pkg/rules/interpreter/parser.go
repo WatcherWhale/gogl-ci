@@ -30,6 +30,18 @@ func (p *parser) end() bool {
 }
 
 func BuildConditionalTree(tokens []lexer.Token, endToken lexer.TokenKind) (ConditionalTree, error) {
+	// In the case of an empty conditional tree always return true
+	if len(tokens) == 1 {
+		return ConditionalTree{
+			Evaluable: &StringLike{
+				token: lexer.Token{
+					Kind:  lexer.STRING,
+					Value: "true", // This can be any non-empty string
+				},
+			},
+		}, nil
+	}
+
 	p := parser{
 		tokens: tokens,
 		pos:    0,

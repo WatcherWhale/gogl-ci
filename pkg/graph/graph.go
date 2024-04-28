@@ -3,6 +3,7 @@ package graph
 import (
 	"slices"
 
+	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 )
 
@@ -102,12 +103,15 @@ func (g *JobGraph) TraverseUntilFound(start string, startHeuristic float64, halt
 	return false
 }
 
-func CalculateJobGraph(pipeline gitlab.Pipeline) *JobGraph {
+func CalculateJobGraph(pipeline gitlab.Pipeline, variables map[string]string) *JobGraph {
 	var g JobGraph
 	g.New(pipeline.Stages)
 
 	for _, job := range pipeline.GetJobs() {
-		g.AddJob(job)
+		if job.IsEnabled(variables) {
+			log.Trace().Msgf("%s is enabled", job.Name)
+			g.AddJob(job)
+		}
 	}
 
 	return &g

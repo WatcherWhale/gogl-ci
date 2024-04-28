@@ -7,6 +7,33 @@ metadata:
 spec:
   pipeline:
     branch: "master"
-    variables:
-      CI_COMMIT_TARGET_BRANCH: ""
   tests:
+    - name: job2 depends on job1
+      job: job2
+      present: true
+      dependsOn:
+        - job1
+
+    - name: job3 depends on job1 an job2
+      job: job3
+      present: true
+      dependsOn:
+        - job1
+        - job2
+
+    - name: job4 has no needs
+      job: job4
+      present: true
+      dependsOn: []
+
+    - name: job5 absent
+      present: false
+
+    - name: job6 depends on all jobs in stage1 and stage2
+      job: job3
+      present: true
+      dependsOn:
+        - job1
+        - job2
+        - job3
+        - job4

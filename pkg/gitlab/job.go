@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"slices"
 
 	"github.com/creasty/defaults"
 	"github.com/rs/zerolog/log"
+	"github.com/watcherwhale/gogl-ci/pkg/rules/interpreter"
 )
 
 type Job struct {
@@ -86,6 +88,21 @@ func (job *Job) Fill(pipeline *Pipeline) {
 		job.fill(extendJob)
 	}
 
+	refRegex := regexp.MustCompile(`!reference \[(.*), rules\]`)
+
+	rules := make([]Rule, 0)
+	for _, rule := range job.Rules {
+		if refRegex.MatchString(rule._reference) {
+			ruleJob := pipeline.Jobs[string(refRegex.FindSubmatch([]byte(rule._reference))[1])]
+			ruleJob.Fill(pipeline)
+			rules = append(rules, ruleJob.Rules...)
+		} else {
+			rules = append(rules, rule)
+		}
+	}
+
+	job.Rules = rules
+
 	job._filled = true
 }
 
@@ -109,4 +126,28 @@ func (job *Job) String() string {
 	}
 
 	return string(bytes)
+}
+
+func (job *Job) IsEnabled(variables map[string]string) bool {
+	for _, rule := range job.Rules {
+		ok, err := interpreter.Evaluate(rule.If, variables)
+
+		if err != nil {
+			log.Warn().Err(err).Msgf("error occured while evaluating rule '%s'", rule.If)
+			return false
+		}
+
+		if !ok {
+			continue
+		}
+
+		switch rule.When {
+		case "never":
+			return false
+		case "always", "manual":
+			return false
+		}
+	}
+
+	return true
 }

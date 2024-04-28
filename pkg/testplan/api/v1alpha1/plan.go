@@ -25,6 +25,7 @@ type TestPlanSpec struct {
 type Pipeline struct {
 	Branch    string            `yaml:"branch,omitempty"`
 	Tag       string            `yaml:"tag,omitempty"`
+	MR        bool              `yaml:"mr"`
 	Variables map[string]string `yaml:"variables"`
 }
 
@@ -56,8 +57,22 @@ func LoadPlan(yamlSource []byte) (*TestPlan, error) {
 	return &plan, nil
 }
 
+func (plan *TestPlan) BuildVariables() map[string]string {
+	variables := plan.Spec.Pipeline.Variables
+
+	if variables == nil {
+		variables = make(map[string]string)
+	}
+
+	if plan.Spec.Pipeline.Branch != "" {
+		variables["CI_COMMIT_BRANCH"] = plan.Spec.Pipeline.Branch
+	}
+
+	return variables
+}
+
 func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
-	g := graph.CalculateJobGraph(*pipeline)
+	g := graph.CalculateJobGraph(*pipeline, plan.BuildVariables())
 
 	status := true
 	message := ""

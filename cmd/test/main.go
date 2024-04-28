@@ -30,6 +30,7 @@ func main() {
 		`$DOES_NOT_EXIST`,
 		`$VAR && $VAR == "test"`,
 		`$VAR || $VAR == "test"`,
+		``,
 	}
 
 	for _, ex := range examples {

@@ -3,8 +3,6 @@ package gitlab
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/watcherwhale/gogl-ci/internal/util"
 )
 
 type Rule struct {
@@ -34,18 +32,4 @@ func (rule *Rule) Parse(template any) error {
 	}
 
 	return fmt.Errorf("cannot parse rule")
-}
-
-func (rule *Rule) Compile(envMap map[string]string) Rule {
-	// Copy struct
-	cRule := *rule
-
-	output, err := util.SubstituteEnv(cRule.If, envMap)
-
-	// If an error occurred, return untemplated string
-	if err == nil {
-		cRule.If = output
-	}
-
-	return cRule
 }
