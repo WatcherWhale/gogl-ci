@@ -3,17 +3,24 @@ package gitlab
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/creasty/defaults"
 )
 
 type Rule struct {
 	If           string
-	When         string
+	When         string       `default:"always"`
 	AllowFailure AllowFailure `gitlabci:"allow_failure"`
 	//Changes      []string
 	_reference string
 }
 
 func (rule *Rule) Parse(template any) error {
+	err := defaults.Set(rule)
+	if err != nil {
+		return err
+	}
+
 	tmplType := reflect.TypeOf(template)
 
 	if tmplType.Kind() == reflect.String {

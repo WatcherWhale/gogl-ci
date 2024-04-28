@@ -11,12 +11,24 @@ type JobGraph struct {
 	edges map[string][]string
 }
 
-func (g *JobGraph) New(jobs map[string]gitlab.Job) {
-	g.jobs = jobs
+func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) {
+	enabledJobs := map[string]gitlab.Job{}
+
+	for k, v := range pipeline.GetJobs() {
+		if v.IsEnabled(variables) {
+			enabledJobs[k] = v
+		}
+	}
+
+	g.jobs = enabledJobs
 	g.edges = make(map[string][]string)
 
-	for job := range jobs {
+	for job := range g.jobs {
 		g.edges[job] = make([]string, 0)
+	}
+
+	for _, job := range g.jobs {
+		g.AddJob(pipeline, job)
 	}
 }
 
@@ -61,18 +73,4 @@ func (g *JobGraph) HasDependency(start string, dependency string) bool {
 	}
 
 	return false
-}
-
-func CalculateJobGraph(pipeline gitlab.Pipeline, variables map[string]string) *JobGraph {
-	var jg JobGraph
-
-	jg.New(pipeline.GetJobs())
-
-	for _, job := range pipeline.GetJobs() {
-		if job.IsEnabled(variables) {
-			jg.AddJob(pipeline, job)
-		}
-	}
-
-	return &jg
 }

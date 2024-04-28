@@ -6,6 +6,7 @@ metadata:
     example: "true"
 spec:
   pipeline:
+    defaultBranch: "master"
     branch: "master"
   tests:
     - name: job2 depends on job1

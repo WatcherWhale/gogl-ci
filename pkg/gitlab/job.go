@@ -133,7 +133,7 @@ func (job *Job) IsEnabled(variables map[string]string) bool {
 		ok, err := interpreter.Evaluate(rule.If, variables)
 
 		if err != nil {
-			log.Warn().Err(err).Msgf("error occured while evaluating rule '%s'", rule.If)
+			log.Warn().Err(err).Msgf("error occurred while evaluating rule '%s'", rule.If)
 			return false
 		}
 
@@ -145,7 +145,7 @@ func (job *Job) IsEnabled(variables map[string]string) bool {
 		case "never":
 			return false
 		case "always", "manual":
-			return false
+			return true
 		}
 	}
 

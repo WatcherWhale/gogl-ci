@@ -8,11 +8,13 @@ job1:
   stage: stage1
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+    - when: never
 
 job2:
   stage: stage1
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+    - when: never
   needs:
     - job1
 
@@ -20,17 +22,20 @@ job3:
   stage: stage2
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+    - when: never
 
 job4:
   stage: stage3
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+    - when: never
   needs: []
 
 job5:
   stage: stage3
   rules:
     - if: $CI_COMMIT_BRANCH != "master"
+    - when: never
   needs:
     - job1
     - job4

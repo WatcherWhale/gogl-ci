@@ -22,10 +22,11 @@ type TestPlanSpec struct {
 }
 
 type Pipeline struct {
-	Branch    string            `yaml:"branch,omitempty"`
-	Tag       string            `yaml:"tag,omitempty"`
-	MR        bool              `yaml:"mr"`
-	Variables map[string]string `yaml:"variables"`
+	DefaultBranch string            `yaml:"defaultBranch,omitempty"`
+	Branch        string            `yaml:"branch,omitempty"`
+	Tag           string            `yaml:"tag,omitempty"`
+	MR            bool              `yaml:"mr"`
+	Variables     map[string]string `yaml:"variables"`
 }
 
 type TestCase struct {
@@ -61,15 +62,22 @@ func (plan *TestPlan) BuildVariables() map[string]string {
 		variables = make(map[string]string)
 	}
 
+	variables["CI_DEFAULT_BRANCH"] = plan.Spec.Pipeline.DefaultBranch
+
 	if plan.Spec.Pipeline.Branch != "" {
 		variables["CI_COMMIT_BRANCH"] = plan.Spec.Pipeline.Branch
+	}
+
+	if plan.Spec.Pipeline.MR {
+		variables["CI_PIPELINE_SOURCE"] = "merge_request_event"
 	}
 
 	return variables
 }
 
 func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
-	g := graph.CalculateJobGraph(*pipeline, plan.BuildVariables())
+	var g graph.JobGraph
+	g.New(*pipeline, plan.BuildVariables())
 
 	status := true
 	message := ""
