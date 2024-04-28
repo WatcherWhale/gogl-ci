@@ -78,41 +78,41 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 			continue
 		}
 
-		logger.Trace().Msgf("%v",!tc.Present && tc.Present == g.HasJob(tc.Job))
+		logger.Trace().Msgf("%v", !tc.Present && tc.Present == g.HasJob(tc.Job))
 		if !tc.Present && tc.Present == g.HasJob(tc.Job) {
 			continue
 		}
 
-		logger.Trace().Msgf("%v", true )
-		logger.Trace().Msgf("%v",!tc.Present)
+		logger.Trace().Msgf("%v", true)
+		logger.Trace().Msgf("%v", !tc.Present)
 		if !tc.Present {
 			status = false
 			message += fmt.Sprintf("- %s: cannot validate dependencies while job is not present\n", tc.Name)
 			continue
 		}
 
-		logger.Trace().Msgf("%v", true )
-		logger.Trace().Msgf("%v", tc.DependsOn != nil )
-		logger.Trace().Msgf("%v", len(tc.DependsOn) == 0 )
-		logger.Trace().Msgf("%v", tc.DependsOn )
+		logger.Trace().Msgf("%v", true)
+		logger.Trace().Msgf("%v", tc.DependsOn != nil)
+		logger.Trace().Msgf("%v", len(tc.DependsOn) == 0)
+		logger.Trace().Msgf("%v", tc.DependsOn)
 
 		if tc.DependsOn != nil {
 			for _, dep := range tc.DependsOn {
-				logger.Trace().Msgf("%v", dep )
+				logger.Trace().Msgf("%v", dep)
 				if !g.HasJob(dep) {
-					logger.Trace().Msgf("%v", false )
+					logger.Trace().Msgf("%v", false)
 					status = false
 					message += fmt.Sprintf("- %s: %s is not present in pipeline\n", tc.Name, dep)
 					continue
 				}
 
 				if !g.HasDependency(tc.Job, dep) {
-					logger.Trace().Msgf("%v", false )
+					logger.Trace().Msgf("%v", false)
 					status = false
 					message += fmt.Sprintf("- %s: %s does not depend on %s\n", tc.Name, tc.Job, dep)
 					continue
 				}
-				logger.Trace().Msgf("%v", true )
+				logger.Trace().Msgf("%v", true)
 			}
 		} else if len(tc.DependsOn) == 0 {
 			if len(g.GetJob(tc.Job).Needs) != 0 {

@@ -81,8 +81,8 @@ func createLexer(source string) *lexer {
 			{regexp.MustCompile(`\|\|`), defaultHandler(OR, "||")},
 			{regexp.MustCompile(`&&`), defaultHandler(AND, "&&")},
 			{regexp.MustCompile(`null`), defaultHandler(NULL, "null")},
-			{regexp.MustCompile(`"([^"]+)"`), capturedHandler},
-			{regexp.MustCompile(`\$([A-Za-z_]+)`), capturedHandler},
+			{regexp.MustCompile(`\$([A-Za-z0-9_]+)`), capturedHandler(IDENTIFIER)},
+			{regexp.MustCompile(`"([^"]+)"`), capturedHandler(STRING)},
 		},
 	}
 }
@@ -102,13 +102,15 @@ func skipHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.adavance(len(match))
 }
 
-func capturedHandler(lex *lexer, regex *regexp.Regexp) {
-	fullmatch := regex.FindString(lex.remainer())
-	match := regex.FindStringSubmatch(lex.remainer())
-	lex.push(Token{
-		Kind:  STRING,
-		Value: match[1],
-	})
+func capturedHandler(kind TokenKind) regexpHandler {
+	return func(lex *lexer, regex *regexp.Regexp) {
+		fullmatch := regex.FindString(lex.remainer())
+		match := regex.FindStringSubmatch(lex.remainer())
+		lex.push(Token{
+			Kind:  kind,
+			Value: match[1],
+		})
 
-	lex.adavance(len(fullmatch))
+		lex.adavance(len(fullmatch))
+	}
 }

@@ -9,4 +9,4 @@ spec:
     branch: "master"
     variables:
       CI_COMMIT_TARGET_BRANCH: ""
-  tests: []
+  tests:
