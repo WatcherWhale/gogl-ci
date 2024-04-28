@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/creasty/defaults v1.7.0
+	github.com/dominikbraun/graph v0.23.0
 	github.com/rs/zerolog v1.32.0
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/xanzy/go-gitlab v0.103.0

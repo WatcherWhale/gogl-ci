@@ -30,7 +30,7 @@ spec:
       present: false
 
     - name: job6 depends on all jobs in stage1 and stage2
-      job: job3
+      job: job6
       present: true
       dependsOn:
         - job1

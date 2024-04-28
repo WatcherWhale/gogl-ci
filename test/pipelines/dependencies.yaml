@@ -2,6 +2,7 @@ stages:
   - stage1
   - stage2
   - stage3
+  - stage4
 
 job1:
   stage: stage1
@@ -35,4 +36,4 @@ job5:
     - job4
 
 job6:
-  stage: stage3
+  stage: stage4

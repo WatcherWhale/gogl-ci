@@ -37,6 +37,18 @@ func (pipeline *Pipeline) GetJobs() map[string]Job {
 	return jobMap
 }
 
+func (pipeline *Pipeline) GetJobsByStage(stage string) map[string]Job {
+	jobMap := make(map[string]Job)
+
+	for name, job := range pipeline.Jobs {
+		if name[0:1] != "." && job.Stage == stage {
+			jobMap[name] = job
+		}
+	}
+
+	return jobMap
+}
+
 func (pipeline *Pipeline) String() string {
 	bytes, err := json.Marshal(pipeline)
 	if err != nil {

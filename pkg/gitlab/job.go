@@ -24,7 +24,7 @@ type Job struct {
 	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 
 	Rules        []Rule
-	Needs        []Need
+	Needs        []Need `default:"null"`
 	Dependencies []string
 
 	Variables map[string]string
