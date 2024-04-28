@@ -58,7 +58,6 @@ func BuildConditionalTree(tokens []lexer.Token, endToken lexer.TokenKind) (Condi
 			}
 			p.advance(len(subTree.tokens))
 			ct.evaluables = append(ct.evaluables, &subTree)
-
 		} else {
 			ct.tokens = append(ct.tokens, p.currentToken())
 			ct.evaluables = append(ct.evaluables, tokenToEvaluable(p.currentToken()))
