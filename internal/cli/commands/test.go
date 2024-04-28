@@ -64,7 +64,7 @@ func readDir(dir string) ([]string, error) {
 	}
 
 	files := make([]string, 0)
-	yamlRegex := regexp.MustCompile(`*.\.ya?ml$`)
+	yamlRegex := regexp.MustCompile(`.*\.ya?ml$`)
 	for _, file := range fileEntries {
 		if yamlRegex.Match([]byte(file.Name())) {
 			files = append(files, file.Name())

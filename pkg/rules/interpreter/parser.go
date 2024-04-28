@@ -13,10 +13,6 @@ func (p *parser) currentToken() lexer.Token {
 	return p.tokens[p.pos]
 }
 
-func (p *parser) getTokens() []lexer.Token {
-	return p.tokens[:p.pos]
-}
-
 func (p *parser) remainder() []lexer.Token {
 	return p.tokens[p.pos:]
 }
