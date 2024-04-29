@@ -61,13 +61,14 @@ func (g *JobGraph) AddEdge(start string, end string) {
 	g.edges[start] = append(g.edges[start], end)
 }
 
-func (g *JobGraph) HasDependency(dependency string, dependent string) bool {
+// Checks if a job has a (indirect) dependency on the given dependency
+func (g *JobGraph) HasDependency(dependency string, job string) bool {
 	for _, edge := range g.edges[dependency] {
-		if edge == dependent {
+		if edge == job {
 			return true
 		}
 
-		if g.HasDependency(edge, dependent) {
+		if g.HasDependency(edge, job) {
 			return true
 		}
 	}
@@ -75,6 +76,7 @@ func (g *JobGraph) HasDependency(dependency string, dependent string) bool {
 	return false
 }
 
+// Get all direct and indirect dependencies for a given job
 func (g *JobGraph) GetDependencies(job string) []string {
 	jobs := make([]string, 0)
 

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTokenization(t *testing.T) {
+func TestComplex(t *testing.T) {
 	testRule := `($VAR == "test" || $VAR != "test2") && ( $VAR_WITH_UDERSCORE =~ /regex/ || $VAR_WITH_UDERSCORE !~ /regex\/with\/a\\\/slash/ )`
 
 	tokens, err := Tokenize(testRule)
@@ -55,7 +55,7 @@ func TestTokenization(t *testing.T) {
 	assert.Equal(t, `regex\/with\/a\\\/slash`, tokens[17].Value)
 }
 
-func TestRegex(t *testing.T) {
+func TestSimpleRegex(t *testing.T) {
 	testRule := `$CI_COMMIT_BRANCH != null && $CI_COMMIT_BRANCH =~ /^\d+\.\d+\.x$/`
 	tokens, err := Tokenize(testRule)
 
@@ -76,4 +76,13 @@ func TestRegex(t *testing.T) {
 		REGEX,
 		EOF,
 	}, kinds)
+}
+
+func TestSyntaxErrors(t *testing.T) {
+	testCase := `$VAR * 2`
+	tokens, err := Tokenize(testCase)
+
+	assert.Nil(t, tokens)
+
+	require.EqualError(t, err, "syntax error: cannot find token for '* 2'")
 }

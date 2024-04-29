@@ -10,6 +10,7 @@ var (
 	INPUT_MAP map[string]string = map[string]string{
 		"VAR":  "hello",
 		"VARS": "test",
+		"VERSION": "15.720.1",
 	}
 
 	TEST_CASES []struct {
@@ -37,6 +38,12 @@ var (
 		{`$DOES_NOT_EXIST`, false},
 		{`$VAR && $VAR == "test"`, false},
 		{`$VAR || $VAR == "test"`, true},
+		{`$VERSION =~ /\d+\.\d+\.\d+/`, true},
+		{`$VERSION !~ /\d+\.\d+\.\d+/`, false},
+		{`$VERSION =~ /\d+/`, true},
+		{`$VERSION !~ /\d+/`, false},
+		{`$VAR =~ /\d+/`, false},
+		{`$VAR !~ /\d+/`, true},
 		{``, true},
 	}
 )

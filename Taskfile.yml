@@ -12,7 +12,9 @@ tasks:
 
   test:
     cmds:
-      - go test -v ./...
+      - go test -v ./... -coverprofile=coverage.out
+      - |
+        go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $3 }'
 
   install:
     cmds:
