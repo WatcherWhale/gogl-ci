@@ -1,8 +1,0 @@
-.test:
-  stage: overwritten
-  before_script:
-    - echo "before"
-  script:
-    - echo "script"
-  after_script:
-    - echo "after"

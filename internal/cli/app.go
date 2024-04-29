@@ -16,8 +16,9 @@ func InitCli() error {
 		Version:     "0.0.0",
 
 		Commands: []*cli.Command{
-			&commands.ParseCommand,
 			&commands.TestCommand,
+
+			&commands.DependsCommand,
 		},
 
 		Before: func(ctx *cli.Context) error {
@@ -63,7 +64,8 @@ func InitCli() error {
 			&cli.StringFlag{
 				Name:     "token",
 				Category: "GitLab",
-				Usage:    "The gitlab api token",
+				Usage:    "The gitlab api token, can also be set with Environment variable GITLAB_TOKEN",
+				Value:    os.Getenv("GITLAB_TOKEN"),
 			},
 		},
 	}

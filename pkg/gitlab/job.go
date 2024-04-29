@@ -149,5 +149,5 @@ func (job *Job) IsEnabled(variables map[string]string) bool {
 		}
 	}
 
-	return true
+	return false
 }

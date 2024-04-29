@@ -61,16 +61,32 @@ func (g *JobGraph) AddEdge(start string, end string) {
 	g.edges[start] = append(g.edges[start], end)
 }
 
-func (g *JobGraph) HasDependency(start string, dependency string) bool {
-	for _, edge := range g.edges[start] {
-		if edge == dependency {
+func (g *JobGraph) HasDependency(dependency string, dependent string) bool {
+	for _, edge := range g.edges[dependency] {
+		if edge == dependent {
 			return true
 		}
 
-		if g.HasDependency(edge, dependency) {
+		if g.HasDependency(edge, dependent) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func (g *JobGraph) GetDependencies(job string) []string {
+	jobs := make([]string, 0)
+
+	for j := range g.jobs {
+		if job == j {
+			continue
+		}
+
+		if g.HasDependency(j, job) {
+			jobs = append(jobs, j)
+		}
+	}
+
+	return jobs
 }

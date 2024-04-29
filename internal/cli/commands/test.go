@@ -11,8 +11,11 @@ import (
 )
 
 var TestCommand cli.Command = cli.Command{
-	Name: "test",
-	Args: true,
+	Name:      "test",
+	Args:      true,
+	Usage:     "Test a TestPlan or a directory of TestPlans against a pipeline.",
+	ArgsUsage: "[TestPlan | Dir 1] [TestPlan | Dir 2] ...",
+	Category:  "Testing",
 	Action: func(ctx *cli.Context) error {
 		pipeline, err := gitlab.Parse(ctx.String("file"))
 		if err != nil {

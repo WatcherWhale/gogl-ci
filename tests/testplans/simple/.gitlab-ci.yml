@@ -8,14 +8,12 @@ job1:
   stage: stage1
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH =~ /^reg\/$/
     - when: never
 
 job2:
   stage: stage1
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH =~ /^reg\/$/
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: never
   needs:
     - job1
@@ -23,15 +21,13 @@ job2:
 job3:
   stage: stage2
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH =~ /^reg\/$/
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: never
 
 job4:
   stage: stage3
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH =~ /^reg\/$/
     - when: never
   needs: []
 
@@ -39,7 +35,6 @@ job5:
   stage: stage3
   rules:
     - if: $CI_COMMIT_BRANCH != "master"
-    - if: $CI_COMMIT_BRANCH =~ /^reg\/$/
     - when: never
   needs:
     - job1

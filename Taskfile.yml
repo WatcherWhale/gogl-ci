@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task: test
+      - task: build
+
+  build:
+    cmds:
+      - CGO_ENABLED=0 go build -ldflags "-w" -v -o ./bin/gogl ./cmd/cli
+
+  test:
+    cmds:
+      - go test -v ./...
+
+  install:
+    cmds:
+      - task: build
+      - cp ./bin/gogl ~/.local/bin/gogl
+

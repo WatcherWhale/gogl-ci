@@ -12,3 +12,4 @@ linters:
     - misspell
     - whitespace
     - zerologlint
+    - testifylint
