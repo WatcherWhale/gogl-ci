@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"slices"
 
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
@@ -33,7 +34,13 @@ func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) {
 }
 
 func (g *JobGraph) GetJob(job string) (gitlab.Job, error) {
-	return gitlab.Job{}, nil
+	j, ok := g.jobs[job]
+
+	if !ok {
+		return gitlab.Job{}, fmt.Errorf("job '%s' is not found in graph", job)
+	}
+
+	return j, nil
 }
 
 func (g *JobGraph) HasJob(job string) bool {

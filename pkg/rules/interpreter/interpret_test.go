@@ -8,8 +8,8 @@ import (
 
 var (
 	INPUT_MAP map[string]string = map[string]string{
-		"VAR":  "hello",
-		"VARS": "test",
+		"VAR":     "hello",
+		"VARS":    "test",
 		"VERSION": "15.720.1",
 	}
 
