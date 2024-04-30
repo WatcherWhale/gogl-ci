@@ -42,3 +42,5 @@ job5:
 
 job6:
   stage: stage4
+  rules:
+    - when: always
