@@ -2,6 +2,7 @@ package commands
 
 import (
 	"os"
+	"path"
 	"regexp"
 
 	"github.com/rs/zerolog/log"
@@ -70,7 +71,7 @@ func readDir(dir string) ([]string, error) {
 	yamlRegex := regexp.MustCompile(`.*\.ya?ml$`)
 	for _, file := range fileEntries {
 		if yamlRegex.Match([]byte(file.Name())) {
-			files = append(files, file.Name())
+			files = append(files, path.Join(dir, file.Name()))
 		}
 	}
 
