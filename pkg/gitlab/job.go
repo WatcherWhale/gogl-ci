@@ -158,8 +158,10 @@ func (job Job) GetActiveJob(variables map[string]string) (Job, error) {
 			activeJob.Variables[k] = v
 		}
 
-		break
+		return activeJob, nil
 	}
+
+	activeJob.When = WHEN_NEVER
 
 	return activeJob, nil
 }
