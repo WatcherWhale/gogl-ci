@@ -20,6 +20,7 @@ execute correctly.
 Implemented keywords:
 
 - [x] Default
+    - See Job Keywords for real status
 - [ ] Include
     - [x] Local
     - [x] Project
