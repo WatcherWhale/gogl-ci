@@ -12,7 +12,7 @@ type Needs struct {
 	Needs []Need
 
 	// Is true when relying on stages to define dependencies
-	NoNeeds bool
+	NoNeeds bool `default:"true"`
 }
 
 func (needs *Needs) Parse(template any) error {

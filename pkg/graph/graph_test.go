@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 )
 
@@ -19,7 +20,10 @@ var (
 				Name:  ".ignored",
 				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test": {
@@ -27,7 +31,10 @@ var (
 				Stage: "start",
 				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test2": {
@@ -35,7 +42,10 @@ var (
 				Stage: "middle",
 				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test3": {
@@ -43,7 +53,10 @@ var (
 				Stage: "end",
 				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test4": {
@@ -51,31 +64,46 @@ var (
 				Stage: "end",
 				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
-					{When: "never"},
+					{
+						When:  "never",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test5": {
 				Name:  "test5",
 				Stage: "end",
-				Needs: gitlab.Needs{Needs: []gitlab.Need{
-					{
-						Job: "test",
+				Needs: gitlab.Needs{
+					NoNeeds: false,
+					Needs: []gitlab.Need{
+						{
+							Job: "test",
+						},
 					},
-				}},
+				},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test6": {
 				Name:  "test6",
 				Stage: "end",
-				Needs: gitlab.Needs{Needs: []gitlab.Need{
-					{
-						Job: "test5",
+				Needs: gitlab.Needs{
+					NoNeeds: false,
+					Needs: []gitlab.Need{
+						{
+							Job: "test5",
+						},
 					},
-				}},
+				},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 			"test7": {
@@ -86,7 +114,10 @@ var (
 					Needs:   make([]gitlab.Need, 0),
 				},
 				Rules: []gitlab.Rule{
-					{When: "always"},
+					{
+						When:  "always",
+						Needs: gitlab.Needs{NoNeeds: true},
+					},
 				},
 			},
 		},
@@ -95,7 +126,9 @@ var (
 
 func TestGraphBuild(t *testing.T) {
 	var jg JobGraph
-	jg.New(TEST_PIPELINE, make(map[string]string))
+	err := jg.New(TEST_PIPELINE, make(map[string]string))
+
+	require.NoError(t, err)
 
 	assert.False(t, jg.HasJob(".ignored"))
 	assert.True(t, jg.HasJob("test"))
@@ -109,7 +142,9 @@ func TestGraphBuild(t *testing.T) {
 
 func TestGraphDependencies(t *testing.T) {
 	var jg JobGraph
-	jg.New(TEST_PIPELINE, make(map[string]string))
+	err := jg.New(TEST_PIPELINE, make(map[string]string))
+
+	require.NoError(t, err)
 
 	assert.True(t, jg.HasDependency("test", "test2"))
 	assert.True(t, jg.HasDependency("test", "test3"))

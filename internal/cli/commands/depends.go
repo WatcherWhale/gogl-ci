@@ -42,7 +42,10 @@ func getDeps(ctx *cli.Context) error {
 	}
 
 	var depGraph graph.JobGraph
-	depGraph.New(*pipeline, varMap)
+	err = depGraph.New(*pipeline, varMap)
+	if err != nil {
+		return err
+	}
 
 	if !depGraph.HasJob(ctx.Args().First()) {
 		return fmt.Errorf("%s does not exist in these conditions", ctx.Args().First())

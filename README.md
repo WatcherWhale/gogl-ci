@@ -85,9 +85,9 @@ Implemented keywords:
     - [ ] needs
         - [x] artifacts
         - [x] project
-        - [ ] pipeline:job
         - [x] optional
         - [ ] pipeline
+        - [ ] pipeline:job
         - [ ] parallel:matrix
     - [ ] pages
         - [ ] publish
@@ -117,8 +117,8 @@ Implemented keywords:
         - [ ] exists:project
         - [x] when
         - [x] allow_failure
-        - [ ] needs
-        - [ ] variables
+        - [x] needs
+        - [x] variables
         - [ ] interruptible
     - [x] script, before_script, after_script
         - [ ] Reference Tags
@@ -144,7 +144,7 @@ Implemented keywords:
         - [ ] value
         - [ ] options
         - [ ] expand
-    - [ ] when
+    - [x] when
 - Deprecated keywords, these won't be supported
     - Globally-defined image, services, cache, before_script, after_script
     - only / except

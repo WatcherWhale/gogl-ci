@@ -7,9 +7,10 @@ import (
 	"regexp"
 	"slices"
 
+	"github.com/watcherwhale/gogl-ci/pkg/rules/interpreter"
+
 	"github.com/creasty/defaults"
 	"github.com/rs/zerolog/log"
-	"github.com/watcherwhale/gogl-ci/pkg/rules/interpreter"
 )
 
 type Job struct {
@@ -23,6 +24,7 @@ type Job struct {
 	BeforeScript []string `default:"[]" gitlabci:"before_script"`
 	AfterScript  []string `default:"[]" gitlabci:"after_script"`
 
+	When         string `default:"on_success"`
 	Rules        []Rule
 	Needs        Needs `gitlabci:"needs"`
 	Dependencies []string
@@ -128,26 +130,36 @@ func (job *Job) String() string {
 	return string(bytes)
 }
 
-func (job *Job) IsEnabled(variables map[string]string) bool {
+// Get a copy of the current job, but overwritten with the first active rule
+func (job Job) GetActiveJob(variables map[string]string) (Job, error) {
+	activeJob := job
+
 	for _, rule := range job.Rules {
 		ok, err := interpreter.Evaluate(rule.If, variables)
 
 		if err != nil {
 			log.Warn().Err(err).Msgf("error occurred while evaluating rule '%s'", rule.If)
-			return false
+			return Job{}, err
 		}
 
 		if !ok {
 			continue
 		}
 
-		switch rule.When {
-		case "never":
-			return false
-		case "always", "manual":
-			return true
+		activeJob.When = rule.When
+
+		// Overwrites needs
+		if !rule.Needs.NoNeeds {
+			activeJob.Needs = rule.Needs
 		}
+
+		// Merge or overwrite variables
+		for k, v := range rule.Variables {
+			activeJob.Variables[k] = v
+		}
+
+		break
 	}
 
-	return false
+	return activeJob, nil
 }

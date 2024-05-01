@@ -39,6 +39,22 @@ func (pipeline *Pipeline) GetJobs() map[string]Job {
 	return jobMap
 }
 
+func (pipeline *Pipeline) GetActiveJobs(variables map[string]string) (map[string]Job, error) {
+	jobMap := make(map[string]Job)
+
+	for name, job := range pipeline.Jobs {
+		if name[0:1] != "." {
+			aj, err := job.GetActiveJob(variables)
+			if err != nil {
+				return nil, err
+			}
+			jobMap[name] = aj
+		}
+	}
+
+	return jobMap, nil
+}
+
 func (pipeline *Pipeline) GetJobsByStage(stage string) map[string]Job {
 	jobMap := make(map[string]Job)
 

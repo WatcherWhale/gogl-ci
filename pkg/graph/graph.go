@@ -12,13 +12,20 @@ type JobGraph struct {
 	edges map[string][]string
 }
 
-func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) {
+func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) error {
 	enabledJobs := map[string]gitlab.Job{}
 
-	for k, v := range pipeline.GetJobs() {
-		if v.IsEnabled(variables) {
-			enabledJobs[k] = v
+	jobs, err := pipeline.GetActiveJobs(variables)
+	if err != nil {
+		return err
+	}
+
+	for k, v := range jobs {
+		if v.When == gitlab.WHEN_NEVER {
+			continue
 		}
+
+		enabledJobs[k] = v
 	}
 
 	g.jobs = enabledJobs
@@ -31,6 +38,8 @@ func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) {
 	for _, job := range g.jobs {
 		g.AddJob(pipeline, job)
 	}
+
+	return nil
 }
 
 func (g *JobGraph) GetJob(job string) (gitlab.Job, error) {

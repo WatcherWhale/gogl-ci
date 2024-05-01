@@ -77,7 +77,10 @@ func (plan *TestPlan) BuildVariables() map[string]string {
 
 func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 	var g graph.JobGraph
-	g.New(*pipeline, plan.BuildVariables())
+	err := g.New(*pipeline, plan.BuildVariables())
+	if err != nil {
+		return false, err.Error()
+	}
 
 	status := true
 	message := ""
