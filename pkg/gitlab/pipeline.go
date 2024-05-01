@@ -7,6 +7,8 @@ import (
 	"slices"
 
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
+	"github.com/watcherwhale/gogl-ci/internal/cache"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab/file"
 )
 
@@ -165,8 +167,17 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 	return nil
 }
 
-func Parse(fileName string) (*Pipeline, error) {
+func Parse(fileName string, cacheEnabled bool) (*Pipeline, error) {
 	var pipeline Pipeline
+
+	if cacheEnabled {
+		key := cache.CreateCacheKey(fileName)
+		err := cache.LoadCache(key, &pipeline)
+		if err == nil {
+			log.Debug().Msg("cache hit, using cached pipeline")
+			return &pipeline, nil
+		}
+	}
 
 	template, err := file.GetTemplateFile(fileName)
 	if err != nil {
@@ -176,6 +187,14 @@ func Parse(fileName string) (*Pipeline, error) {
 	err = pipeline.parse(template, false, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if cacheEnabled {
+		key := cache.CreateCacheKey(fileName)
+		err := cache.SaveCache(key, pipeline)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &pipeline, nil

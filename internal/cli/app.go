@@ -15,10 +15,14 @@ func InitCli() error {
 		Description: "A cli tool for getting insight into your gitlab pipelines",
 		Version:     "0.0.0",
 
+		EnableBashCompletion: true,
+
 		Commands: []*cli.Command{
 			&commands.TestCommand,
 
 			&commands.DependsCommand,
+
+			&commands.CacheCommad,
 		},
 
 		Before: func(ctx *cli.Context) error {
@@ -37,6 +41,11 @@ func InitCli() error {
 		},
 
 		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "cache",
+				Aliases: []string{"c"},
+				Value:   false,
+			},
 			&cli.StringFlag{
 				Name:  "file",
 				Usage: "The ci root file",

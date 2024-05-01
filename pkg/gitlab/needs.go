@@ -7,6 +7,27 @@ import (
 	"github.com/creasty/defaults"
 )
 
+type Needs struct {
+	// A list of needs
+	Needs []Need
+
+	// Is true when relying on stages to define dependencies
+	NoNeeds bool
+}
+
+func (needs *Needs) Parse(template any) error {
+	structPtr := reflect.ValueOf(needs).Elem()
+	needsPtr := structPtr.FieldByName("Needs")
+	err := parseField(&needsPtr, "needs", template)
+	if err != nil {
+		return err
+	}
+
+	needs.NoNeeds = false
+
+	return nil
+}
+
 type Need struct {
 	Job       string
 	Ref       string

@@ -49,17 +49,17 @@ func (g *JobGraph) HasJob(job string) bool {
 }
 
 func (g *JobGraph) AddJob(pipeline gitlab.Pipeline, job gitlab.Job) {
-	for _, need := range job.Needs {
-		g.AddEdge(need.Job, job.Name)
-	}
-
-	if job.Needs == nil {
+	if job.Needs.NoNeeds {
 		stageIndex := slices.Index(pipeline.Stages, job.Stage)
 
 		for i := 0; i < stageIndex; i++ {
 			for _, need := range pipeline.GetJobsByStage(pipeline.Stages[i]) {
 				g.AddEdge(need.Name, job.Name)
 			}
+		}
+	} else {
+		for _, need := range job.Needs.Needs {
+			g.AddEdge(need.Job, job.Name)
 		}
 	}
 }

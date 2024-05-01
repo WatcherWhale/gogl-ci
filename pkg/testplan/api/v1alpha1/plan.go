@@ -127,7 +127,7 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 				continue
 			}
 
-			if len(job.Needs) != 0 {
+			if len(job.Needs.Needs) != 0 {
 				status = false
 				message += fmt.Sprintf("- %s: %s has dependencies defined\n", tc.Name, tc.Job)
 				continue

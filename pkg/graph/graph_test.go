@@ -17,7 +17,7 @@ var (
 		Jobs: map[string]gitlab.Job{
 			".ignored": {
 				Name:  ".ignored",
-				Needs: nil,
+				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
 					{When: "always"},
 				},
@@ -25,7 +25,7 @@ var (
 			"test": {
 				Name:  "test",
 				Stage: "start",
-				Needs: nil,
+				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
 					{When: "always"},
 				},
@@ -33,7 +33,7 @@ var (
 			"test2": {
 				Name:  "test2",
 				Stage: "middle",
-				Needs: nil,
+				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
 					{When: "always"},
 				},
@@ -41,7 +41,7 @@ var (
 			"test3": {
 				Name:  "test3",
 				Stage: "end",
-				Needs: nil,
+				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
 					{When: "always"},
 				},
@@ -49,7 +49,7 @@ var (
 			"test4": {
 				Name:  "test4",
 				Stage: "end",
-				Needs: nil,
+				Needs: gitlab.Needs{NoNeeds: true},
 				Rules: []gitlab.Rule{
 					{When: "never"},
 				},
@@ -57,11 +57,11 @@ var (
 			"test5": {
 				Name:  "test5",
 				Stage: "end",
-				Needs: []gitlab.Need{
+				Needs: gitlab.Needs{Needs: []gitlab.Need{
 					{
 						Job: "test",
 					},
-				},
+				}},
 				Rules: []gitlab.Rule{
 					{When: "always"},
 				},
@@ -69,10 +69,21 @@ var (
 			"test6": {
 				Name:  "test6",
 				Stage: "end",
-				Needs: []gitlab.Need{
+				Needs: gitlab.Needs{Needs: []gitlab.Need{
 					{
 						Job: "test5",
 					},
+				}},
+				Rules: []gitlab.Rule{
+					{When: "always"},
+				},
+			},
+			"test7": {
+				Name:  "test7",
+				Stage: "end",
+				Needs: gitlab.Needs{
+					NoNeeds: false,
+					Needs:   make([]gitlab.Need, 0),
 				},
 				Rules: []gitlab.Rule{
 					{When: "always"},
@@ -93,6 +104,7 @@ func TestGraphBuild(t *testing.T) {
 	assert.False(t, jg.HasJob("test4"))
 	assert.True(t, jg.HasJob("test5"))
 	assert.True(t, jg.HasJob("test6"))
+	assert.True(t, jg.HasJob("test7"))
 }
 
 func TestGraphDependencies(t *testing.T) {
@@ -119,4 +131,6 @@ func TestGraphDependencies(t *testing.T) {
 		"test",
 		"test5",
 	})
+
+	assert.Empty(t, jg.GetDependencies("test7"))
 }

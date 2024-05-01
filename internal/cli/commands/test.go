@@ -17,7 +17,7 @@ var TestCommand cli.Command = cli.Command{
 	ArgsUsage: "[TestPlan | Dir 1] [TestPlan | Dir 2] ...",
 	Category:  "Testing",
 	Action: func(ctx *cli.Context) error {
-		pipeline, err := gitlab.Parse(ctx.String("file"))
+		pipeline, err := gitlab.Parse(ctx.String("file"), ctx.Bool("cache"))
 		if err != nil {
 			return err
 		}

@@ -10,7 +10,7 @@ import (
 )
 
 func TestSimple_SimpleTrue(t *testing.T) {
-	pipeline, err := gitlab.Parse("simple/.gitlab-ci.yml")
+	pipeline, err := gitlab.Parse("simple/.gitlab-ci.yml", false)
 
 	require.NoError(t, err)
 	require.NotNil(t, pipeline)
@@ -27,7 +27,7 @@ func TestSimple_SimpleTrue(t *testing.T) {
 }
 
 func TestSimple_SimpleFalse(t *testing.T) {
-	pipeline, err := gitlab.Parse("simple/.gitlab-ci.yml")
+	pipeline, err := gitlab.Parse("simple/.gitlab-ci.yml", false)
 
 	require.NoError(t, err)
 	require.NotNil(t, pipeline)
