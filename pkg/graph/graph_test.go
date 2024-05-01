@@ -120,6 +120,27 @@ var (
 					},
 				},
 			},
+			"test8": {
+				Name:  "test8",
+				Stage: "end",
+				Needs: gitlab.Needs{
+					NoNeeds: false,
+					Needs:   make([]gitlab.Need, 0),
+				},
+				Rules: []gitlab.Rule{
+					{
+						When: "always",
+						Needs: gitlab.Needs{
+							NoNeeds: false,
+							Needs: []gitlab.Need{
+								{
+									Job: "test7",
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 )
@@ -138,6 +159,7 @@ func TestGraphBuild(t *testing.T) {
 	assert.True(t, jg.HasJob("test5"))
 	assert.True(t, jg.HasJob("test6"))
 	assert.True(t, jg.HasJob("test7"))
+	assert.True(t, jg.HasJob("test8"))
 }
 
 func TestGraphDependencies(t *testing.T) {
@@ -150,6 +172,7 @@ func TestGraphDependencies(t *testing.T) {
 	assert.True(t, jg.HasDependency("test", "test3"))
 	assert.True(t, jg.HasDependency("test2", "test3"))
 	assert.True(t, jg.HasDependency("test", "test6"))
+	assert.True(t, jg.HasDependency("test7", "test8"))
 
 	assert.ElementsMatch(t, jg.GetDependencies("test3"), []string{
 		"test",
@@ -167,5 +190,15 @@ func TestGraphDependencies(t *testing.T) {
 		"test5",
 	})
 
+	assert.ElementsMatch(t, jg.GetDependencies("test6"), []string{
+		"test",
+		"test5",
+	})
+
 	assert.Empty(t, jg.GetDependencies("test7"))
+
+	// Check if needs are correctly overwritten
+	assert.ElementsMatch(t, jg.GetDependencies("test8"), []string{
+		"test7",
+	})
 }
