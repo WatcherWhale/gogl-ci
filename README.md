@@ -58,7 +58,7 @@ Implemented keywords:
         - [ ] fallback_keys
     - [x] coverage
     - [ ] dast_configuration
-    - [ ] dependencies
+    - [x] dependencies
     - [ ] environment
         - [ ] name
         - [ ] url

@@ -71,10 +71,17 @@ func (g *JobGraph) AddJob(pipeline gitlab.Pipeline, job gitlab.Job) {
 			g.AddEdge(need.Job, job.Name)
 		}
 	}
+
+	for _, dep := range job.Dependencies {
+		g.AddEdge(dep, job.Name)
+	}
 }
 
+// Add a dependency for the end job with the start job
 func (g *JobGraph) AddEdge(start string, end string) {
-	g.edges[start] = append(g.edges[start], end)
+	if _, ok := g.edges[start]; ok {
+		g.edges[start] = append(g.edges[start], end)
+	}
 }
 
 // Checks if a job has a (indirect) dependency on the given dependency
