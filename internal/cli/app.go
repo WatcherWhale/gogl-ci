@@ -2,7 +2,9 @@ package cli
 
 import (
 	"os"
+	"strings"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/watcherwhale/gogl-ci/internal/cli/commands"
@@ -26,6 +28,18 @@ func InitCli() error {
 		},
 
 		Before: func(ctx *cli.Context) error {
+			switch strings.ToUpper(ctx.String("log-level")) {
+			case "TRACE":
+				zerolog.SetGlobalLevel(zerolog.TraceLevel)
+			case "DEBUG":
+				zerolog.SetGlobalLevel(zerolog.DebugLevel)
+			case "WARN":
+				zerolog.SetGlobalLevel(zerolog.WarnLevel)
+			case "ERROR":
+				zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+			default:
+				zerolog.SetGlobalLevel(zerolog.InfoLevel)
+			}
 			if ctx.String("token") != "" {
 				scheme := "https://"
 				if !ctx.Bool("https") {
@@ -73,11 +87,24 @@ func InitCli() error {
 			&cli.StringFlag{
 				Name:     "token",
 				Category: "GitLab",
-				Usage:    "The gitlab api token, can also be set with Environment variable GITLAB_TOKEN",
+				Usage:    "The gitlab api token, can also be set with environment variable GITLAB_TOKEN",
 				Value:    os.Getenv("GITLAB_TOKEN"),
+			},
+			&cli.StringFlag{
+				Name:  "log-level",
+				Usage: "Set the log level, can also be set with environment variable LOG_LEVEL",
+				Value: envOrDefault("LOG_LEVEL", "INFO"),
 			},
 		},
 	}
 
 	return app.Run(os.Args)
+}
+
+func envOrDefault(key string, defaultStr string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return defaultStr
+	}
+	return value
 }

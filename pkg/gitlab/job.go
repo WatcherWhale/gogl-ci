@@ -61,7 +61,7 @@ func (job *Job) Parse(name string, template map[any]any) error {
 	for yamlKey, value := range template {
 		key, ok := keyMap[yamlKey.(string)]
 		if !ok {
-			log.Logger.Warn().Msgf("found unknown keyword %s", yamlKey.(string))
+			log.Logger.Debug().Msgf("found unknown keyword %s", yamlKey.(string))
 			continue
 		}
 

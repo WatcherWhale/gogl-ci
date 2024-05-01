@@ -56,6 +56,9 @@ var TestCommand cli.Command = cli.Command{
 			}
 		}
 
+		if exitCode == 0 {
+			log.Info().Msg("All tests succeeded")
+		}
 		os.Exit(exitCode)
 		return nil
 	},
