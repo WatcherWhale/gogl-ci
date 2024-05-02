@@ -51,7 +51,7 @@ func (include *Include) Parse(template any) error {
 
 	case reflect.Map:
 		value := reflect.ValueOf(include).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}

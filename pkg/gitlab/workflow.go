@@ -16,7 +16,7 @@ func (workflow *WorkFlow) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(workflow).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}
@@ -37,7 +37,7 @@ func (ac *AutoCancel) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(ac).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func (rule *WorkflowRule) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(rule).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}

@@ -20,7 +20,7 @@ func (image *Image) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(image).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}

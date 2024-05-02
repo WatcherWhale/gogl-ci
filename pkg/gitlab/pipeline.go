@@ -136,7 +136,7 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 
 	if defaultTmpl, ok := template["default"]; ok {
 		pipeline.Default = Job{}
-		err := pipeline.Default.Parse("default", defaultTmpl.(map[any]any))
+		err := pipeline.Default.Parse("default", defaultTmpl.(map[string]any))
 		if err != nil {
 			return err
 		}
@@ -153,7 +153,7 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 		// If key is not known assume a job is found
 		if !ok {
 			var job Job
-			err := job.Parse(yamlKey.(string), value.(map[any]any))
+			err := job.Parse(yamlKey.(string), value.(map[string]any))
 			if err != nil {
 				return err
 			}

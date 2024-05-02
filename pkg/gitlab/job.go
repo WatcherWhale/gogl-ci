@@ -46,7 +46,7 @@ type Job struct {
 	_filled        bool     `default:"false" parser:"ignore"`
 }
 
-func (job *Job) Parse(name string, template map[any]any) error {
+func (job *Job) Parse(name string, template map[string]any) error {
 	err := defaults.Set(job)
 
 	if err != nil {
@@ -59,9 +59,9 @@ func (job *Job) Parse(name string, template map[any]any) error {
 
 	structPtr := reflect.ValueOf(job).Elem()
 	for yamlKey, value := range template {
-		key, ok := keyMap[yamlKey.(string)]
+		key, ok := keyMap[yamlKey]
 		if !ok {
-			log.Logger.Debug().Msgf("found unknown keyword %s", yamlKey.(string))
+			log.Logger.Debug().Msgf("found unknown keyword %s", yamlKey)
 			continue
 		}
 

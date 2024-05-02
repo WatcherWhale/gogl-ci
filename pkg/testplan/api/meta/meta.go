@@ -1,6 +1,6 @@
 package meta
 
-import "gopkg.in/yaml.v2"
+import "gopkg.in/yaml.v3"
 
 type ApiKind struct {
 	Kind    string `yaml:"kind"`

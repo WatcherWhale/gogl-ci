@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func parseYaml(bytes []byte) (map[any]any, error) {

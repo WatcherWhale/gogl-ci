@@ -7,7 +7,7 @@ import (
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 	"github.com/watcherwhale/gogl-ci/pkg/graph"
 	"github.com/watcherwhale/gogl-ci/pkg/testplan/api/meta"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type TestPlan struct {

@@ -43,7 +43,7 @@ func (rule *Rule) Parse(template any) error {
 
 	if tmplType.Kind() == reflect.Map {
 		value := reflect.ValueOf(rule).Elem()
-		err := parseMap(&value, template.(map[any]any))
+		err := parseMap(&value, template.(map[string]any))
 		if err != nil {
 			return err
 		}
