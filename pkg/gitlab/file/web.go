@@ -7,6 +7,7 @@ import (
 )
 
 func GetTemplateWeb(url string) (map[any]any, error) {
+	//nolint:gosec
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err

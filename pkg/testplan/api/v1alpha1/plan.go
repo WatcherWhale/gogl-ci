@@ -72,6 +72,10 @@ func (plan *TestPlan) BuildVariables() map[string]string {
 		variables["CI_PIPELINE_SOURCE"] = "merge_request_event"
 	}
 
+	if plan.Spec.Pipeline.Tag != "" {
+		variables["CI_COMMIT_TAG"] = plan.Spec.Pipeline.Tag
+	}
+
 	return variables
 }
 

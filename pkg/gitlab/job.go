@@ -77,16 +77,24 @@ func (job *Job) Parse(name string, template map[string]any) error {
 	return nil
 }
 
-func (job *Job) Fill(pipeline *Pipeline) {
+func (job *Job) Fill(pipeline *Pipeline) error {
 	if job._filled {
-		return
+		return nil
 	}
 
 	job.fill(pipeline.Default)
 
 	for _, extendKey := range job.Extends {
-		extendJob := pipeline.Jobs[extendKey]
-		extendJob.Fill(pipeline)
+		extendJob, ok := pipeline.Jobs[extendKey]
+
+		if !ok {
+			return fmt.Errorf("job %s not found, cannot parse job %s", extendKey, job.Name)
+		}
+
+		err := extendJob.Fill(pipeline)
+		if err != nil {
+			return err
+		}
 		job.fill(extendJob)
 	}
 
@@ -96,7 +104,10 @@ func (job *Job) Fill(pipeline *Pipeline) {
 	for _, rule := range job.Rules {
 		if refRegex.MatchString(rule._reference) {
 			ruleJob := pipeline.Jobs[string(refRegex.FindSubmatch([]byte(rule._reference))[1])]
-			ruleJob.Fill(pipeline)
+			err := ruleJob.Fill(pipeline)
+			if err != nil {
+				return err
+			}
 			rules = append(rules, ruleJob.Rules...)
 		} else {
 			rules = append(rules, rule)
@@ -106,6 +117,8 @@ func (job *Job) Fill(pipeline *Pipeline) {
 	job.Rules = rules
 
 	job._filled = true
+
+	return nil
 }
 
 func (job *Job) fill(template Job) {

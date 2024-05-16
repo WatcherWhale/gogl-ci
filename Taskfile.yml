@@ -6,6 +6,11 @@ tasks:
       - task: test
       - task: build
 
+  lint:
+    cmds:
+      - gofmt -w .
+      - golangci-lint run
+
   build:
     cmds:
       - CGO_ENABLED=0 go build -ldflags "-w" -v -o ./bin/gogl ./cmd/cli

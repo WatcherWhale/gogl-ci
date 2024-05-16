@@ -176,7 +176,10 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 	}
 
 	for key, job := range pipeline.Jobs {
-		job.Fill(pipeline)
+		err := job.Fill(pipeline)
+		if err != nil {
+			return err
+		}
 		pipeline.Jobs[key] = job
 	}
 
