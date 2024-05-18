@@ -12,7 +12,7 @@ import (
 
 type TestPlan struct {
 	meta.ApiKind
-	Metadata meta.TestPlanMeta `yaml:"metdata"`
+	Metadata meta.TestPlanMeta `yaml:"metadata"`
 	Spec     TestPlanSpec      `yaml:"spec"`
 }
 
@@ -86,6 +86,11 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 		return false, err.Error()
 	}
 
+	err = g.Validate()
+	if err != nil {
+		return false, fmt.Sprintf("[%s] error while validating job needs: %v", plan.Metadata.Name, err)
+	}
+
 	status := true
 	message := ""
 
@@ -93,9 +98,9 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 		if g.HasJob(tc.Job) != tc.Present {
 			status = false
 			if tc.Present {
-				message += fmt.Sprintf("- %s: '%s' not found in pipeline\n", tc.Name, tc.Job)
+				message += fmt.Sprintf("- [%s] %s: '%s' not found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
 			} else {
-				message += fmt.Sprintf("- %s: '%s' has been found in pipeline\n", tc.Name, tc.Job)
+				message += fmt.Sprintf("- [%s] %s: '%s' has been found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
 			}
 
 			continue
@@ -107,7 +112,7 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 
 		if !tc.Present {
 			status = false
-			message += fmt.Sprintf("- %s: cannot validate dependencies while job is not present\n", tc.Name)
+			message += fmt.Sprintf("- [%s] %s: cannot validate dependencies while job is not present\n", plan.Metadata.Name, tc.Name)
 			continue
 		}
 
@@ -115,13 +120,13 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 			for _, dep := range tc.DependsOn {
 				if !g.HasJob(dep) {
 					status = false
-					message += fmt.Sprintf("- %s: %s is not present in pipeline\n", tc.Name, dep)
+					message += fmt.Sprintf("- [%s] %s: %s is not present in pipeline\n", plan.Metadata.Name, tc.Name, dep)
 					continue
 				}
 
 				if !g.HasDependency(dep, tc.Job) {
 					status = false
-					message += fmt.Sprintf("- %s: %s does not depend on %s\n", tc.Name, tc.Job, dep)
+					message += fmt.Sprintf("- [%s] %s: %s does not depend on %s\n", plan.Metadata.Name, tc.Name, tc.Job, dep)
 					continue
 				}
 			}
@@ -130,13 +135,13 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 
 			if err != nil {
 				status = false
-				message += fmt.Sprintf("- %s: %s does not exist\n", tc.Name, tc.Job)
+				message += fmt.Sprintf("- [%s] %s: %s does not exist\n", plan.Metadata.Name, tc.Name, tc.Job)
 				continue
 			}
 
 			if len(job.Needs.Needs) != 0 {
 				status = false
-				message += fmt.Sprintf("- %s: %s has dependencies defined\n", tc.Name, tc.Job)
+				message += fmt.Sprintf("- [%s] %s: %s has dependencies defined\n", plan.Metadata.Name, tc.Name, tc.Job)
 				continue
 			}
 		}

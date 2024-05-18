@@ -42,26 +42,12 @@ func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) er
 	return nil
 }
 
-func (g *JobGraph) GetJob(job string) (gitlab.Job, error) {
-	j, ok := g.jobs[job]
-
-	if !ok {
-		return gitlab.Job{}, fmt.Errorf("job '%s' is not found in graph", job)
-	}
-
-	return j, nil
-}
-
-func (g *JobGraph) HasJob(job string) bool {
-	_, ok := g.jobs[job]
-	return ok
-}
-
 func (g *JobGraph) AddJob(pipeline gitlab.Pipeline, job gitlab.Job) {
 	if job.Needs.NoNeeds {
 		stageIndex := slices.Index(pipeline.Stages, job.Stage)
 
 		for i := 0; i < stageIndex; i++ {
+			// TODO: validate this behaviour, with rules evaluated pipelines
 			for _, need := range pipeline.GetJobsByStage(pipeline.Stages[i]) {
 				g.AddEdge(need.Name, job.Name)
 			}
@@ -82,6 +68,21 @@ func (g *JobGraph) AddEdge(start string, end string) {
 	if _, ok := g.edges[start]; ok {
 		g.edges[start] = append(g.edges[start], end)
 	}
+}
+
+func (g *JobGraph) GetJob(job string) (gitlab.Job, error) {
+	j, ok := g.jobs[job]
+
+	if !ok {
+		return gitlab.Job{}, fmt.Errorf("job '%s' is not found in graph", job)
+	}
+
+	return j, nil
+}
+
+func (g *JobGraph) HasJob(job string) bool {
+	_, ok := g.jobs[job]
+	return ok
 }
 
 // Checks if a job has a (indirect) dependency on the given dependency
@@ -114,4 +115,16 @@ func (g *JobGraph) GetDependencies(job string) []string {
 	}
 
 	return jobs
+}
+
+func (g JobGraph) Validate() error {
+	for _, job := range g.jobs {
+		for _, need := range job.Needs.Needs {
+			if !g.HasJob(need.Job) {
+				return fmt.Errorf("job '%s' needs job '%s' but it was not present in the pipeline", job.Name, need.Job)
+			}
+		}
+	}
+
+	return nil
 }
