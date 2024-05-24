@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/watcherwhale/gogl-ci/internal/cli/commands"
+	"github.com/watcherwhale/gogl-ci/internal/token"
 	"github.com/watcherwhale/gogl-ci/pkg/api"
 )
 
@@ -42,7 +43,17 @@ func InitCli() error {
 			default:
 				zerolog.SetGlobalLevel(zerolog.InfoLevel)
 			}
-			if ctx.String("token") != "" {
+
+			tokenStr := ctx.String("token")
+			if tokenStr == "" {
+				var err error
+				tokenStr, err = token.GetToken(ctx.String("instance"))
+				if err != nil {
+					tokenStr = ""
+				}
+			}
+
+			if tokenStr != "" {
 				scheme := "https://"
 				if !ctx.Bool("https") {
 					scheme = "http://"
@@ -51,7 +62,7 @@ func InitCli() error {
 				api.GitlabUrl = scheme + ctx.String("instance") + "/api/v4"
 				log.Logger.Debug().Msgf("Using gitlab instance: %s", api.GitlabUrl)
 
-				return api.Login(ctx.String("token"))
+				return api.Login(tokenStr)
 			}
 			return nil
 		},
