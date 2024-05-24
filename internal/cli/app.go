@@ -25,6 +25,8 @@ func InitCli() error {
 			&commands.DependsCommand,
 
 			&commands.CacheCommad,
+
+			&commands.LoginCommand,
 		},
 
 		Before: func(ctx *cli.Context) error {
