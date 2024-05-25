@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 )
 
 func CreateCacheKey(filename string) string {
@@ -18,6 +19,16 @@ func CreateCacheKey(filename string) string {
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(absPath))
+}
+
+func CreateGenericCacheKey(keys ...string) string {
+	key := ""
+
+	for _, k := range keys {
+		key += "-" + k
+	}
+
+	return base64.StdEncoding.EncodeToString([]byte(key))
 }
 
 func SaveCache(cacheKey string, obj any) error {
@@ -58,8 +69,13 @@ func LoadCache(cacheKey string, obj any) error {
 
 	cacheDir := path.Join(cacheHome, "gogl")
 
-	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
+	stat, err := os.Stat(cacheDir)
+	if os.IsNotExist(err) {
 		return fmt.Errorf("cache does not exist")
+	}
+
+	if time.Now().After(stat.ModTime().Add(time.Hour * 24)) {
+		return fmt.Errorf("cahce is expired")
 	}
 
 	b, err := os.ReadFile(path.Join(cacheDir, cacheKey))

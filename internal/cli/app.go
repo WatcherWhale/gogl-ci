@@ -68,11 +68,6 @@ func InitCli() error {
 		},
 
 		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "cache",
-				Aliases: []string{"c"},
-				Value:   false,
-			},
 			&cli.StringFlag{
 				Name:  "file",
 				Usage: "The ci root file",

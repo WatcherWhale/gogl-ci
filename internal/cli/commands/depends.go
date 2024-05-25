@@ -31,7 +31,7 @@ var DependsCommand cli.Command = cli.Command{
 }
 
 func getDeps(ctx *cli.Context) error {
-	pipeline, err := gitlab.Parse(ctx.String("file"), ctx.Bool("cache"))
+	pipeline, err := gitlab.Parse(ctx.String("file"))
 	if err != nil {
 		return err
 	}
