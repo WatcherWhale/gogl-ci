@@ -25,19 +25,27 @@ type Pipeline struct {
 	DefaultBranch string            `yaml:"defaultBranch,omitempty"`
 	Branch        string            `yaml:"branch,omitempty"`
 	Tag           string            `yaml:"tag,omitempty"`
-	MR            bool              `yaml:"mr"`
+	MR            *bool             `yaml:"mr"`
 	Variables     map[string]string `yaml:"variables"`
+}
+
+func (p Pipeline) isMr() bool {
+	return p.MR != nil && *p.MR
 }
 
 type TestCase struct {
 	Name string `yaml:"name"`
 	Job  string `yaml:"job"`
 
-	Present bool `yaml:"present" default:"true"`
+	Present *bool `yaml:"present" default:"true"`
 
 	// If empty array, check that job depends on nothing
 	// If nil, ignore
 	DependsOn []string `yaml:"dependsOn"`
+}
+
+func (tc TestCase) isPresent() bool {
+	return tc.Present == nil || *tc.Present
 }
 
 func LoadPlan(yamlSource []byte) (*TestPlan, error) {
@@ -68,7 +76,7 @@ func (plan *TestPlan) BuildVariables() map[string]string {
 		variables["CI_COMMIT_BRANCH"] = plan.Spec.Pipeline.Branch
 	}
 
-	if plan.Spec.Pipeline.MR {
+	if plan.Spec.Pipeline.isMr() {
 		variables["CI_PIPELINE_SOURCE"] = "merge_request_event"
 	}
 
@@ -95,9 +103,9 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 	message := ""
 
 	for _, tc := range plan.Spec.Tests {
-		if g.HasJob(tc.Job) != tc.Present {
+		if g.HasJob(tc.Job) != tc.isPresent() {
 			status = false
-			if tc.Present {
+			if tc.isPresent() {
 				message += fmt.Sprintf("- [%s] %s: '%s' not found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
 			} else {
 				message += fmt.Sprintf("- [%s] %s: '%s' has been found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
@@ -106,11 +114,11 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 			continue
 		}
 
-		if !tc.Present && tc.Present == g.HasJob(tc.Job) {
+		if !tc.isPresent() && tc.isPresent() == g.HasJob(tc.Job) {
 			continue
 		}
 
-		if !tc.Present {
+		if !tc.isPresent() {
 			status = false
 			message += fmt.Sprintf("- [%s] %s: cannot validate dependencies while job is not present\n", plan.Metadata.Name, tc.Name)
 			continue
