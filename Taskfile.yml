@@ -15,6 +15,14 @@ tasks:
     cmds:
       - CGO_ENABLED=0 go build -ldflags "-w" -v -o ./bin/gogl ./cmd/cli
 
+  docker:
+    cmds:
+      - docker buildx build --output "type=docker,push=false" --tag ghcr.io/watcherwhale/gogl:dev .
+
+  docker-publish:
+    cmds:
+      - docker buildx build --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x --tag ghcr.io/watcherwhale/gogl:dev --push .
+
   test:
     cmds:
       - go test -v ./... -coverprofile=coverage.out
