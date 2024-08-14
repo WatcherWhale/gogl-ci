@@ -28,6 +28,8 @@ func InitCli() error {
 			&commands.CacheCommad,
 
 			&commands.LoginCommand,
+
+			&commands.ListCommand,
 		},
 
 		Before: func(ctx *cli.Context) error {
