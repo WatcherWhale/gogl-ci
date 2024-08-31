@@ -25,3 +25,5 @@ go.work
 
 # Exclude build files
 bin/
+
+result
