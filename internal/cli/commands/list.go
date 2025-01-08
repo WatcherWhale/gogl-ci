@@ -25,7 +25,7 @@ var ListCommand cli.Command = cli.Command{
 			Value: "master",
 		},
 		&cli.BoolFlag{
-			Name: "mr",
+			Name:  "mr",
 			Value: false,
 		},
 	},
@@ -52,7 +52,6 @@ func getJobs(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 
 	if len(jobs) == 0 {
 		fmt.Println("[]")

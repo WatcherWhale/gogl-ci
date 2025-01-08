@@ -86,3 +86,41 @@ func TestSyntaxErrors(t *testing.T) {
 
 	require.EqualError(t, err, "syntax error: cannot find token for '* 2'")
 }
+
+func TestEmptyString(t *testing.T) {
+	testCase := `$TEST_VAR == ""`
+	tokens, err := Tokenize(testCase)
+
+	require.NoError(t, err)
+
+	kinds := make([]TokenKind, len(tokens))
+	for i, token := range tokens {
+		kinds[i] = token.Kind
+	}
+
+	assert.EqualValues(t, []TokenKind{
+		IDENTIFIER,
+		EQUAL,
+		STRING,
+		EOF,
+	}, kinds)
+}
+
+func TestEscapedString(t *testing.T) {
+	testCase := `$TEST_VAR == "this is a long string containing escaped \" and a substring \"substring\"!!!"`
+	tokens, err := Tokenize(testCase)
+
+	require.NoError(t, err)
+
+	kinds := make([]TokenKind, len(tokens))
+	for i, token := range tokens {
+		kinds[i] = token.Kind
+	}
+
+	assert.EqualValues(t, []TokenKind{
+		IDENTIFIER,
+		EQUAL,
+		STRING,
+		EOF,
+	}, kinds)
+}
