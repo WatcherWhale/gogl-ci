@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"encoding/json"
 	"fmt"
 	"slices"
 
@@ -10,6 +11,12 @@ import (
 type JobGraph struct {
 	jobs  map[string]gitlab.Job
 	edges map[string][]string
+}
+
+func NewGraph(pipeline gitlab.Pipeline, variables map[string]string) (*JobGraph, error) {
+	var g JobGraph
+	err := g.New(pipeline, variables)
+	return &g, err
 }
 
 func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) error {
@@ -87,6 +94,10 @@ func (g *JobGraph) HasJob(job string) bool {
 
 // Checks if a job has a (indirect) dependency on the given dependency
 func (g *JobGraph) HasDependency(dependency string, job string) bool {
+	if !g.HasJob(job) || !g.HasJob(dependency) {
+		return false
+	}
+
 	for _, edge := range g.edges[dependency] {
 		if edge == job {
 			return true
@@ -127,4 +138,23 @@ func (g JobGraph) Validate() error {
 	}
 
 	return nil
+}
+
+func (g JobGraph) Map() map[string]any {
+	return map[string]any{
+		"dependencies": g.edges,
+		"jobs":         g.jobs,
+	}
+}
+
+func (g JobGraph) String() string {
+	jsonbBytes, err := json.Marshal(g.Map())
+
+	// We know all data is serializable as it originally came from a yaml file
+	//  If magically we do still have an error, just panic
+	if err != nil {
+		panic(err)
+	}
+
+	return string(jsonbBytes)
 }

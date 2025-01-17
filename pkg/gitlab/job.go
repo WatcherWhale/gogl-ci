@@ -14,33 +14,33 @@ import (
 )
 
 type Job struct {
-	Name string
+	Name string `json:"name"`
 
-	Image Image `default:"{}"`
+	Image Image `default:"{}" json:"image"`
 
-	Stage string `default:"test"`
+	Stage string `default:"test" json:"stage"`
 
-	Script       []string
-	BeforeScript []string `default:"[]" gitlabci:"before_script"`
-	AfterScript  []string `default:"[]" gitlabci:"after_script"`
+	Script       []string `json:"script"`
+	BeforeScript []string `default:"[]" gitlabci:"before_script" json:"before_script"`
+	AfterScript  []string `default:"[]" gitlabci:"after_script" json:"after_script"`
 
-	When         string `default:"on_success"`
-	Rules        []Rule
-	Needs        Needs `gitlabci:"needs"`
-	Dependencies []string
+	When         string   `default:"on_success" json:"on_success"`
+	Rules        []Rule   `json:"rules"`
+	Needs        Needs    `gitlabci:"needs" json:"needs"`
+	Dependencies []string `json:"dependencies"`
 
-	Variables map[string]string
+	Variables map[string]string `json:"variables"`
 
-	Interruptible bool
+	Interruptible bool `json:"interruptible"`
 
-	Extends []string
+	Extends []string `json:"extends"`
 
-	AllowFailure AllowFailure `gitlabci:"allow_failure"`
+	AllowFailure AllowFailure `gitlabci:"allow_failure" json:"allow_failure"`
 
-	Artifacts Artifacts
-	Cache     Cache
+	Artifacts Artifacts `json:"artifacts"`
+	Cache     Cache     `json:"cache"`
 
-	Coverage string
+	Coverage string `json:"coverage"`
 
 	_keysWithValue []string `default:"[]" parser:"ignore"`
 	_filled        bool     `default:"false" parser:"ignore"`

@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"github.com/watcherwhale/gogl-ci/pkg/format"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 	"github.com/watcherwhale/gogl-ci/pkg/testplan"
 )
@@ -45,14 +46,15 @@ var TestCommand cli.Command = cli.Command{
 		for _, file := range files {
 			plan, err := testplan.ParseFile(file)
 			if err != nil {
-				return err
+				log.Debug().Err(err).Msgf("Failed to parse %s", file)
+				continue
 			}
 
-			ok, reason := plan.Validate(pipeline)
-			if !ok {
-				log.Error().Msgf("%s failed with error:\n%s", plan.Metadata.Name, reason)
+			output := plan.Validate(pipeline)
+			format.PrintTests(output)
+
+			if !output.IsTreeSucceeded() {
 				exitCode = 1
-				continue
 			}
 		}
 

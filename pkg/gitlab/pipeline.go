@@ -11,18 +11,18 @@ import (
 )
 
 type Pipeline struct {
-	Stages []string `default:"[\"build\", \"test\", \"deploy\"]"`
+	Stages []string `default:"[\"build\", \"test\", \"deploy\"]" json:"stages"`
 
-	Include         []Include `default:"[]"`
+	Include         []Include `default:"[]" json:"include"`
 	_parsedIncludes []string  `default:"[]"`
 
-	Jobs map[string]Job `default:"{}"`
+	Jobs map[string]Job `default:"{}" json:"jobs"`
 
-	Variables map[string]string
+	Variables map[string]string `json:"variables"`
 
-	WorkFlow WorkFlow
+	WorkFlow WorkFlow `json:"workflow"`
 
-	Default Job
+	Default Job `json:"default"`
 }
 
 func (pipeline *Pipeline) GetJobs() map[string]Job {

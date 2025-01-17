@@ -1,0 +1,12 @@
+apiVersion: test.gogl.ci/v1alpha2
+kind: TestPlan
+metadata:
+  name: Simple True
+tests:
+  - name: Master
+    pipeline:
+      defaultBranch: "master"
+      branch: "master"
+      mr: false
+    tests:
+      "True": simple_true.go

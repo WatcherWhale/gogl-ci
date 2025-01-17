@@ -20,6 +20,25 @@
       vendorHash = "sha256-b+BT/IZ6rvXsLokhBWruoA71N3hUsbuipD4V9D1ypEQ=";
     in
     {
+      devShells = flake-utils.lib.eachDefaultSystemPassThrough (
+        system:
+        let
+          pkgs = import nixpkgs {
+            system = system;
+          };
+        in
+        {
+          "${system}".default = pkgs.mkShell {
+            packages = with pkgs; [
+              go
+              golangci-lint
+              go-task
+              yaegi
+            ];
+          };
+        }
+      );
+
       packages = flake-utils.lib.eachDefaultSystemPassThrough (system: {
         "${system}" = {
           default = self.packages."${system}".gogl-ci;
