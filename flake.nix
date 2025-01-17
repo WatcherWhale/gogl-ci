@@ -14,10 +14,10 @@
       ...
     }:
     let
-      version = "0.0.1";
-      rev = "0c3b049ee6837bdebfda18dc670999a20f9ac7cd";
-      hash = "sha256-LxWrjZfGjcN10qg5XMWaCAF42KTUS5ziNRc+6cIeHVs=";
-      vendorHash = "sha256-b+BT/IZ6rvXsLokhBWruoA71N3hUsbuipD4V9D1ypEQ=";
+      version = "0.0.2";
+      rev = "e052d8e881f30ea89fcffad150bdce60e2fdc6bd";
+      hash = "sha256-h20+8EtuYL6mwyaqgIvYAxWnUfUbISVmcsWp/LfUVtA=";
+      vendorHash = "sha256-H1pwnlwvegDZ20iag8wltaE7BJg4mPV7MloE0GLuQpM=";
     in
     {
       devShells = flake-utils.lib.eachDefaultSystemPassThrough (
