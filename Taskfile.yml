@@ -11,8 +11,16 @@ tasks:
       - gofmt -w .
       - golangci-lint run
 
+  generate:
+    run: once
+    sources:
+      - ./pkg/symbols/init.go
+    cmds:
+      - go generate ./...
+
   build:
     cmds:
+      - task: generate
       - CGO_ENABLED=0 go build -ldflags "-w" -v -o ./bin/gogl ./cmd/cli
 
   docker:
@@ -25,7 +33,8 @@ tasks:
 
   test:
     cmds:
-      - go test -v ./... -coverprofile=coverage.out
+      - task: generate
+      - go test -v `go list ./... | grep -v github.com/watcherwhale/gogl-ci/internal/tests/testplans/v1alpha2/simple/plans` -coverprofile=coverage.out
       - |
         go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $3 }'
 

@@ -27,3 +27,5 @@ go.work
 bin/
 
 result
+
+.task/

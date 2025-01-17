@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/creasty/defaults"
+	"github.com/watcherwhale/gogl-ci/pkg/format"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 	"github.com/watcherwhale/gogl-ci/pkg/graph"
 	"github.com/watcherwhale/gogl-ci/pkg/testplan/api/meta"
@@ -48,7 +49,7 @@ func (tc TestCase) isPresent() bool {
 	return tc.Present == nil || *tc.Present
 }
 
-func LoadPlan(yamlSource []byte) (*TestPlan, error) {
+func LoadPlan(yamlSource []byte) (meta.TestPlan, error) {
 	var plan TestPlan
 	err := defaults.Set(&plan)
 	if err != nil {
@@ -87,54 +88,81 @@ func (plan *TestPlan) BuildVariables() map[string]string {
 	return variables
 }
 
-func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
+func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) format.TestOutput {
+	tout := format.TestOutput{
+		Name:      plan.Metadata.Name,
+		Succeeded: true,
+		SubTests:  make([]format.TestOutput, len(plan.Spec.Tests)),
+	}
+
 	var g graph.JobGraph
 	err := g.New(*pipeline, plan.BuildVariables())
 	if err != nil {
-		return false, err.Error()
+		tout.Succeeded = false
+		tout.Message = err.Error()
+		return tout
 	}
 
 	err = g.Validate()
 	if err != nil {
-		return false, fmt.Sprintf("[%s] error while validating job needs: %v", plan.Metadata.Name, err)
+		tout.Succeeded = false
+		tout.Message = fmt.Sprintf("error while validating job needs: %v", err)
+		return tout
 	}
 
-	status := true
-	message := ""
-
-	for _, tc := range plan.Spec.Tests {
+	for i, tc := range plan.Spec.Tests {
 		if g.HasJob(tc.Job) != tc.isPresent() {
-			status = false
 			if tc.isPresent() {
-				message += fmt.Sprintf("- [%s] %s: '%s' not found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
+				tout.SubTests[i] = format.TestOutput{
+					Name:      tc.Name,
+					Succeeded: false,
+					Message:   fmt.Sprintf("%s: '%s' not found in pipeline", tc.Name, tc.Job),
+				}
 			} else {
-				message += fmt.Sprintf("- [%s] %s: '%s' has been found in pipeline\n", plan.Metadata.Name, tc.Name, tc.Job)
+				tout.SubTests[i] = format.TestOutput{
+					Name:      tc.Name,
+					Succeeded: false,
+					Message:   fmt.Sprintf("%s: '%s' has been found in pipeline", tc.Name, tc.Job),
+				}
 			}
 
 			continue
 		}
 
 		if !tc.isPresent() && tc.isPresent() == g.HasJob(tc.Job) {
+			tout.SubTests[i] = format.TestOutput{
+				Name:      tc.Name,
+				Succeeded: true,
+			}
 			continue
 		}
 
 		if !tc.isPresent() {
-			status = false
-			message += fmt.Sprintf("- [%s] %s: cannot validate dependencies while job is not present\n", plan.Metadata.Name, tc.Name)
+			tout.SubTests[i] = format.TestOutput{
+				Name:      tc.Name,
+				Succeeded: false,
+				Message:   "cannot validate dependencies while job is not present",
+			}
 			continue
 		}
 
 		if tc.DependsOn != nil {
 			for _, dep := range tc.DependsOn {
 				if !g.HasJob(dep) {
-					status = false
-					message += fmt.Sprintf("- [%s] %s: %s is not present in pipeline\n", plan.Metadata.Name, tc.Name, dep)
+					tout.SubTests[i] = format.TestOutput{
+						Name:      tc.Name,
+						Succeeded: false,
+						Message:   fmt.Sprintf("%s is not present in pipeline", dep),
+					}
 					continue
 				}
 
 				if !g.HasDependency(dep, tc.Job) {
-					status = false
-					message += fmt.Sprintf("- [%s] %s: %s does not depend on %s\n", plan.Metadata.Name, tc.Name, tc.Job, dep)
+					tout.SubTests[i] = format.TestOutput{
+						Name:      tc.Name,
+						Succeeded: false,
+						Message:   fmt.Sprintf("%s does not depend on %s", tc.Job, dep),
+					}
 					continue
 				}
 			}
@@ -142,18 +170,29 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) (bool, string) {
 			job, err := g.GetJob(tc.Job)
 
 			if err != nil {
-				status = false
-				message += fmt.Sprintf("- [%s] %s: %s does not exist\n", plan.Metadata.Name, tc.Name, tc.Job)
+				tout.SubTests[i] = format.TestOutput{
+					Name:      tc.Name,
+					Succeeded: false,
+					Message:   fmt.Sprintf("%s does not exist", tc.Job),
+				}
 				continue
 			}
 
 			if len(job.Needs.Needs) != 0 {
-				status = false
-				message += fmt.Sprintf("- [%s] %s: %s has dependencies defined\n", plan.Metadata.Name, tc.Name, tc.Job)
+				tout.SubTests[i] = format.TestOutput{
+					Name:      tc.Name,
+					Succeeded: false,
+					Message:   fmt.Sprintf("%s has dependencies defined", tc.Job),
+				}
 				continue
 			}
 		}
+
+		tout.SubTests[i] = format.TestOutput{
+			Name:      tc.Name,
+			Succeeded: true,
+		}
 	}
 
-	return status, message
+	return tout
 }
