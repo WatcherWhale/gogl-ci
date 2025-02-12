@@ -10,6 +10,7 @@ var LoginCommand cli.Command = cli.Command{
 	Category: "GitLab",
 	Args:     true,
 	Action:   loginAction,
+	Usage:    "gogl login <instance> <token>",
 }
 
 func loginAction(ctx *cli.Context) error {
