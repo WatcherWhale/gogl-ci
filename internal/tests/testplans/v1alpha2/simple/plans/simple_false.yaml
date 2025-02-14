@@ -3,10 +3,12 @@ kind: TestPlan
 metadata:
   name: Simple False
 tests:
-  - name: Master
-    pipeline:
-      defaultBranch: "master"
-      branch: "master"
-      mr: false
+  - name: "False"
     tests:
-      "True": simple_false.go
+      "true": simple_true.go
+      "false": simple_false.go
+validations:
+  - name: Master
+    defaultBranch: "master"
+    branch: "master"
+    mr: false

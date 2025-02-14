@@ -14,28 +14,25 @@ import (
 
 type TestPlan struct {
 	meta.ApiKind
-	Metadata meta.TestPlanMeta `yaml:"metadata"`
-	Tests    []TestPlanSpec    `yaml:"tests"`
+	Metadata    meta.TestPlanMeta `yaml:"metadata"`
+	Tests       []TestSpec        `yaml:"tests"`
+	Validations []ValidationSpec  `yaml:"validations"`
 
 	_fileLoc string `yaml:"-"`
 }
 
-type TestPlanSpec struct {
-	Name     string
-	Pipeline Pipeline          `yaml:"pipeline"`
-	Tests    map[string]string `yaml:"tests"`
+type TestSpec struct {
+	Name  string
+	Tests map[string]string `yaml:"tests"`
 }
 
-type Pipeline struct {
+type ValidationSpec struct {
+	Name          string            `yaml:"name"`
 	DefaultBranch string            `yaml:"defaultBranch,omitempty"`
 	Branch        string            `yaml:"branch,omitempty"`
 	Tag           string            `yaml:"tag,omitempty"`
 	MR            *bool             `yaml:"mr"`
 	Variables     map[string]string `yaml:"variables"`
-}
-
-func (p Pipeline) isMr() bool {
-	return p.MR != nil && *p.MR
 }
 
 func LoadPlan(filePath string, yamlSource []byte) (meta.TestPlan, error) {
@@ -55,35 +52,22 @@ func LoadPlan(filePath string, yamlSource []byte) (meta.TestPlan, error) {
 	return &plan, nil
 }
 
-func (spec *TestPlanSpec) BuildVariables() map[string]string {
-	variables := spec.Pipeline.Variables
-
-	if variables == nil {
-		variables = make(map[string]string)
-	}
-
-	variables["CI_DEFAULT_BRANCH"] = spec.Pipeline.DefaultBranch
-
-	if spec.Pipeline.Branch != "" {
-		variables["CI_COMMIT_BRANCH"] = spec.Pipeline.Branch
-	}
-
-	if spec.Pipeline.isMr() {
-		variables["CI_PIPELINE_SOURCE"] = "merge_request_event"
-	}
-
-	if spec.Pipeline.Tag != "" {
-		variables["CI_COMMIT_TAG"] = spec.Pipeline.Tag
-	}
-
-	return variables
-}
-
 func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) format.TestOutput {
 	tout := format.TestOutput{
-		Name:      plan.Metadata.Name,
-		SubTests:  make([]format.TestOutput, 0),
+		Name: plan.Metadata.Name,
+		SubTests: []format.TestOutput{
+			{
+				Name:      "Pipeline Validations",
+				Succeeded: true,
+				SubTests:  make([]format.TestOutput, 0),
+			},
+		},
 		Succeeded: true,
+	}
+
+	for _, spec := range plan.Validations {
+		outp := spec.validate(*pipeline)
+		tout.SubTests[0].SubTests = append(tout.SubTests[0].SubTests, outp)
 	}
 
 	for _, spec := range plan.Tests {
@@ -94,26 +78,7 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) format.TestOutput {
 	return tout
 }
 
-func (spec *TestPlanSpec) validate(fileLoc string, pipeline gitlab.Pipeline) format.TestOutput {
-	vars := spec.BuildVariables()
-	g, err := graph.NewGraph(pipeline, vars)
-	if err != nil {
-		return format.TestOutput{
-			Name:      spec.Name,
-			Succeeded: false,
-			Message:   err.Error(),
-		}
-	}
-
-	err = g.Validate()
-	if err != nil {
-		return format.TestOutput{
-			Name:      spec.Name,
-			Succeeded: false,
-			Message:   fmt.Sprintf("error while validating job graph: %v", err),
-		}
-	}
-
+func (spec *TestSpec) validate(fileLoc string, pipeline gitlab.Pipeline) format.TestOutput {
 	outp := format.TestOutput{
 		Name:      spec.Name,
 		Succeeded: true,
@@ -137,7 +102,7 @@ func (spec *TestPlanSpec) validate(fileLoc string, pipeline gitlab.Pipeline) for
 		}
 
 		for funcName, fn := range testFuncs {
-			ok, terr := fn(pipeline, *g, vars)
+			ok, terr := fn(pipeline)
 
 			tout.SubTests = append(tout.SubTests, format.TestOutput{
 				Name:      funcName,
@@ -150,4 +115,59 @@ func (spec *TestPlanSpec) validate(fileLoc string, pipeline gitlab.Pipeline) for
 	}
 
 	return outp
+}
+
+func (pl *ValidationSpec) validate(pipeline gitlab.Pipeline) format.TestOutput {
+	vars := pl.BuildVariables()
+
+	g, err := graph.NewGraph(pipeline, vars)
+	if err != nil {
+		return format.TestOutput{
+			Name:      pl.Name,
+			Succeeded: false,
+			Message:   err.Error(),
+		}
+	}
+
+	err = g.Validate()
+	if err != nil {
+		return format.TestOutput{
+			Name:      pl.Name,
+			Succeeded: false,
+			Message:   err.Error(),
+		}
+	}
+
+	return format.TestOutput{
+		Name:      pl.Name,
+		Succeeded: true,
+	}
+}
+
+func (p ValidationSpec) isMr() bool {
+	return p.MR != nil && *p.MR
+}
+
+func (pipeline *ValidationSpec) BuildVariables() map[string]string {
+	variables := pipeline.Variables
+
+	if variables == nil {
+		variables = make(map[string]string)
+	}
+
+	variables["CI_DEFAULT_BRANCH"] = pipeline.DefaultBranch
+
+	if pipeline.Branch != "" {
+		variables["CI_COMMIT_BRANCH"] = pipeline.Branch
+	}
+
+	if pipeline.isMr() {
+		variables["CI_PIPELINE_SOURCE"] = "merge_request_event"
+	}
+
+	if pipeline.Tag != "" {
+		variables["CI_COMMIT_TAG"] = pipeline.Tag
+	}
+
+	return variables
 }

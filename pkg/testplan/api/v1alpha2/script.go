@@ -8,14 +8,13 @@ import (
 	"regexp"
 
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
-	"github.com/watcherwhale/gogl-ci/pkg/graph"
 	"github.com/watcherwhale/gogl-ci/pkg/testplan/api/v1alpha2/interp"
 )
 
 var packageRegexp = regexp.MustCompile(`(?m)^package +([^\s]+) *$`)
 var testFuncRegexp = regexp.MustCompile(`^Test.*$`)
 
-type TestFunc func(gitlab.Pipeline, graph.JobGraph, map[string]string) (bool, string)
+type TestFunc func(gitlab.Pipeline) (bool, string)
 
 func loadTestFile(path string) (map[string]TestFunc, error) {
 	ctx := context.Background()
@@ -50,7 +49,7 @@ func loadTestFile(path string) (map[string]TestFunc, error) {
 		}
 
 		if val.Kind() == reflect.Func {
-			fn, ok := val.Interface().(func(gitlab.Pipeline, graph.JobGraph, map[string]string) (bool, string))
+			fn, ok := val.Interface().(func(gitlab.Pipeline) (bool, string))
 			if ok {
 				testFuncs[name] = fn
 			}
