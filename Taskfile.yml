@@ -13,6 +13,13 @@ tasks:
 
   generate:
     run: once
+    sources:
+      - pkg/graph/*.go
+      - pkg/gitlab/*.go
+      - pkg/rules/interpreter/*.go
+      - pkg/symbols/init.go
+    generates:
+      - pkg/symbols/*.go
     cmds:
       - go generate ./...
 
