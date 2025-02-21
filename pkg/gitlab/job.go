@@ -144,7 +144,9 @@ func (job *Job) String() string {
 }
 
 // Get a copy of the current job, but overwritten with the first active rule
-func (job Job) GetActiveJob(variables map[string]string) (Job, error) {
+func (job Job) GetActiveJob(in_variables Variables) (Job, error) {
+	variables := in_variables.ForJob(job)
+
 	activeJob := job
 
 	for _, rule := range job.Rules {

@@ -6,9 +6,9 @@ import (
 )
 
 func TestMaster(pipeline gitlab.Pipeline) (bool, string) {
-	g, err := graph.NewGraph(pipeline, map[string]string{
-		"CI_COMMIT_BRANCH": "master",
-	})
+	vars := gitlab.NewVariables().WithDefaultBranch("master").WithBranch("master")
+
+	g, err := graph.NewGraph(pipeline, vars)
 	if err != nil {
 		return false, err.Error()
 	}

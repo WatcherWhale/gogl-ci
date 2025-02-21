@@ -91,13 +91,16 @@ var (
 			"test6": {
 				Name:  "test6",
 				Stage: "end",
-				Needs: gitlab.Needs{
-					NoNeeds: false,
-					Needs: []gitlab.Need{
-						{
-							Job: "test5",
-						},
-					},
+				// Needs: gitlab.Needs{
+				// 	NoNeeds: false,
+				// 	Needs: []gitlab.Need{
+				// 		{
+				// 			Job: "test5",
+				// 		},
+				// 	},
+				// },
+				Dependencies: []string{
+					"test5",
 				},
 				Rules: []gitlab.Rule{
 					{
@@ -150,6 +153,7 @@ func TestGraphBuild(t *testing.T) {
 	err := jg.New(TEST_PIPELINE, make(map[string]string))
 
 	require.NoError(t, err)
+	assert.NoError(t, jg.Validate())
 
 	assert.False(t, jg.HasJob(".ignored"))
 	assert.True(t, jg.HasJob("test"))
@@ -201,4 +205,20 @@ func TestGraphDependencies(t *testing.T) {
 	assert.ElementsMatch(t, jg.GetDependencies("test8"), []string{
 		"test7",
 	})
+}
+
+func TestGetJob(t *testing.T) {
+	var jg JobGraph
+	err := jg.New(TEST_PIPELINE, make(map[string]string))
+
+	require.NoError(t, err)
+
+	_, err = jg.GetJob("test")
+	assert.NoError(t, err)
+
+	_, err = jg.GetJob("test4")
+	assert.Error(t, err)
+
+	_, err = jg.GetJob("non-existing-job")
+	assert.Error(t, err)
 }
