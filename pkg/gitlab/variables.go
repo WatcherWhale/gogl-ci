@@ -73,6 +73,7 @@ func (vars Variables) WithMergeRequest() Variables {
 		"CI_MERGE_REQUEST_TITLE":                   "title",
 		"CI_MERGE_REQUEST_TARGET_BRANCH_NAME":      vars["CI_DEFAULT_BRANCH"],
 		"CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED": "true",
+		"CI_PIPELINE_SOURCE":                       "merge_request_event",
 	}
 
 	return mrVars.Overwrite(vars)
