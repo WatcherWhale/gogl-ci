@@ -22,8 +22,8 @@ type TestPlan struct {
 }
 
 type TestSpec struct {
-	Name  string
-	Tests map[string]string `yaml:"tests"`
+	Name string
+	Test string `yaml:"test"`
 }
 
 type ValidationSpec struct {
@@ -79,42 +79,29 @@ func (plan *TestPlan) Validate(pipeline *gitlab.Pipeline) format.TestOutput {
 }
 
 func (spec *TestSpec) validate(fileLoc string, pipeline gitlab.Pipeline) format.TestOutput {
-	outp := format.TestOutput{
+	tout := format.TestOutput{
 		Name:      spec.Name,
 		Succeeded: true,
 		SubTests:  make([]format.TestOutput, 0),
 	}
 
-	for ns, file := range spec.Tests {
-		tout := format.TestOutput{
-			Name:      ns,
-			Succeeded: true,
-			SubTests:  make([]format.TestOutput, 0),
-		}
-
-		testFuncs, err := loadTestFile(path.Join(fileLoc, file))
-		if err != nil {
-			tout.Succeeded = false
-			tout.Message = fmt.Sprintf("error while opening %s: %v", file, err)
-
-			outp.SubTests = append(outp.SubTests, tout)
-			continue
-		}
-
-		for funcName, fn := range testFuncs {
-			ok, terr := fn(pipeline)
-
-			tout.SubTests = append(tout.SubTests, format.TestOutput{
-				Name:      funcName,
-				Succeeded: ok,
-				Message:   terr,
-			})
-		}
-
-		outp.SubTests = append(outp.SubTests, tout)
+	testFuncs, err := loadTestFile(path.Join(fileLoc, spec.Test))
+	if err != nil {
+		tout.Succeeded = false
+		tout.Message = fmt.Sprintf("error while opening %s: %v", spec.Test, err)
 	}
 
-	return outp
+	for funcName, fn := range testFuncs {
+		ok, terr := fn(pipeline)
+
+		tout.SubTests = append(tout.SubTests, format.TestOutput{
+			Name:      funcName,
+			Succeeded: ok,
+			Message:   terr,
+		})
+	}
+
+	return tout
 }
 
 func (pl *ValidationSpec) validate(pipeline gitlab.Pipeline) format.TestOutput {
