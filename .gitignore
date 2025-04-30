@@ -30,4 +30,7 @@ result
 
 .task/
 
+.direnv
+.devenv
+
 example.env
