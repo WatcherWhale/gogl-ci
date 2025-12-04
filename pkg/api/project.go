@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 )
 
 func GetProjectFile(project string, file string, ref string) ([]byte, error) {

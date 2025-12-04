@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 	"golang.org/x/time/rate"
 )
 
