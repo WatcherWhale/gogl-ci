@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab/file"
 )
 
@@ -79,14 +80,14 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 	if include.Local != "" {
 		isProject, proj, ref := include.isProject()
 		if !isProject {
-			// This is a real local file
+			log.Debug().Msgf("include: loading local file %q", include.Local)
 			templ, err := file.GetTemplateFile(include.Local[1:])
 			if err != nil {
 				return nil, err
 			}
 			return []map[any]any{templ}, nil
 		} else {
-			// This include was included from another project, loading it from this project instead
+			log.Debug().Msgf("include: loading %q from project %s@%s", include.Local, proj, ref)
 			templ, err := file.GetTemplateProject(include.Local[1:], proj, ref)
 			if err != nil {
 				return nil, err
@@ -96,6 +97,7 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 	}
 
 	if include.Remote != "" {
+		log.Debug().Msgf("include: loading remote URL %q", include.Remote)
 		templ, err := file.GetTemplateWeb(include.Remote)
 		if err != nil {
 			return nil, err
@@ -106,6 +108,7 @@ func (include *Include) GetTemplate() ([]map[any]any, error) {
 	if include.Project != "" {
 		templArr := make([]map[any]any, len(include.File))
 		for i, fileName := range include.File {
+			log.Debug().Msgf("include: loading %q from project %s@%s", fileName, include.Project, include.Ref)
 			templ, err := file.GetTemplateProject(fileName[1:], include.Project, include.Ref)
 			if err != nil {
 				return nil, err

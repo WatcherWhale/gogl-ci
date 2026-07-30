@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab"
 )
 
@@ -29,6 +30,7 @@ func (g *JobGraph) New(pipeline gitlab.Pipeline, variables map[string]string) er
 
 	for k, v := range jobs {
 		if v.When == gitlab.WHEN_NEVER {
+			log.Trace().Msgf("graph: job %q excluded (when: never)", k)
 			continue
 		}
 
@@ -132,6 +134,11 @@ func (g JobGraph) Validate() error {
 	for _, job := range g.jobs {
 		for _, need := range job.Needs.Needs {
 			if !g.HasJob(need.Job) {
+				activeJobs := make([]string, 0, len(g.jobs))
+				for k := range g.jobs {
+					activeJobs = append(activeJobs, k)
+				}
+				log.Debug().Strs("active_jobs", activeJobs).Msgf("needs validation failed: job %q needs %q which is not in the pipeline", job.Name, need.Job)
 				return fmt.Errorf("job '%s' needs job '%s' but it was not present in the pipeline", job.Name, need.Job)
 			}
 		}

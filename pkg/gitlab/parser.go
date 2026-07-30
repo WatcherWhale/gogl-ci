@@ -3,6 +3,8 @@ package gitlab
 import (
 	"reflect"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 func getFieldKeys(structVal reflect.Type) map[string]string {
@@ -55,6 +57,10 @@ func parseMap(structPtr *reflect.Value, template map[string]any) error {
 
 	for yamlKey, value := range template {
 		key := keyMap[yamlKey]
+		if key == "" {
+			log.Trace().Msgf("parseMap %s: unknown keyword %q (skipped)", structPtr.Type().Name(), yamlKey)
+			continue
+		}
 		field := structPtr.FieldByName(key)
 
 		err := parseField(&field, key, value)
@@ -66,6 +72,11 @@ func parseMap(structPtr *reflect.Value, template map[string]any) error {
 }
 
 func parseSlice(field *reflect.Value, key, value any) error {
+	if value == nil {
+		log.Debug().Msgf("parseSlice: nil value for field %q, treating as empty (check your YAML for a key with no value)", key)
+		return nil
+	}
+
 	var valSlice []interface{}
 
 	rVal := reflect.ValueOf(value)

@@ -61,9 +61,11 @@ func (job *Job) Parse(name string, template map[string]any) error {
 	for yamlKey, value := range template {
 		key, ok := keyMap[yamlKey]
 		if !ok {
-			log.Logger.Debug().Msgf("found unknown keyword %s", yamlKey)
+			log.Trace().Msgf("job %q: unknown keyword %q (skipped)", name, yamlKey)
 			continue
 		}
+
+		log.Trace().Msgf("job %q: parsing field %q", name, yamlKey)
 
 		field := structPtr.FieldByName(key)
 		err := parseField(&field, key, value)
@@ -103,7 +105,9 @@ func (job *Job) Fill(pipeline *Pipeline) error {
 	rules := make([]Rule, 0)
 	for _, rule := range job.Rules {
 		if refRegex.MatchString(rule._reference) {
-			ruleJob := pipeline.Jobs[string(refRegex.FindSubmatch([]byte(rule._reference))[1])]
+			refTarget := string(refRegex.FindSubmatch([]byte(rule._reference))[1])
+			log.Trace().Msgf("job %q: expanding !reference [%s, rules]", job.Name, refTarget)
+			ruleJob := pipeline.Jobs[refTarget]
 			err := ruleJob.Fill(pipeline)
 			if err != nil {
 				return err
