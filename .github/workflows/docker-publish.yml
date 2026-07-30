@@ -27,7 +27,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -35,6 +35,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/watcherwhale/gogl:dev
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
