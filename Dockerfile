@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.22.4 as build
+FROM golang:1.26.5 AS build
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -16,9 +16,9 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-w -s" -o ./bin/gogl cmd/cli/main.go
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:bookworm-20240612-slim
+FROM debian:12.15-slim
 
-LABEL org.opencontainers.image.source https://github.com/WatcherWhale/gogl-ci
+LABEL org.opencontainers.image.source=https://github.com/WatcherWhale/gogl-ci
 
 WORKDIR /
 

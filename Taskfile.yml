@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   default:
@@ -34,7 +34,7 @@ tasks:
 
   docker-publish:
     cmds:
-      - docker buildx build --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x --tag ghcr.io/watcherwhale/gogl:dev --push .
+      - docker buildx build --platform linux/amd64,linux/arm64 --tag ghcr.io/watcherwhale/gogl:dev --push .
 
   test:
     cmds:
@@ -47,4 +47,3 @@ tasks:
     cmds:
       - task: build
       - cp ./bin/gogl ~/.local/bin/gogl
-
