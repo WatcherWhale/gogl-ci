@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
 	"github.com/watcherwhale/gogl-ci/pkg/gitlab/file"
 )
 
@@ -123,6 +124,8 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 				return err
 			}
 
+			log.Trace().Msgf("loading include: %s", newInclude.hash())
+
 			// Parse include templates into pipeline
 			i := len(pipeline.Include) - 1
 			for _, template := range templates {
@@ -152,6 +155,7 @@ func (pipeline *Pipeline) parse(template map[any]any, recursive bool, parentIncl
 
 		// If key is not known assume a job is found
 		if !ok {
+			log.Trace().Msgf("parsing job: %s", yamlKey.(string))
 			var job Job
 			err := job.Parse(yamlKey.(string), value.(map[string]any))
 			if err != nil {
