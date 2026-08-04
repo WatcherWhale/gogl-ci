@@ -2,6 +2,7 @@ name: Docker Dev
 on:
   push:
     branches: ["master"]
+  pull_request:
 
 env:
   REGISTRY: ghcr.io
@@ -22,6 +23,9 @@ jobs:
         with:
           go-version: "1.24"
 
+      - name: Install yaegi
+        run: go install github.com/traefik/yaegi/cmd/yaegi@v0.16.1
+
       - name: Generate
         run: go generate ./...
 
@@ -30,7 +34,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    #needs: test
+    needs: test
+    if: github.event_name == 'push'
     permissions:
       contents: read
       packages: write
