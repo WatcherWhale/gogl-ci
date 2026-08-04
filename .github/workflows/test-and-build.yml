@@ -1,4 +1,4 @@
-name: Docker Dev
+name: Test and Build
 on:
   push:
     branches: ["master"]
