@@ -1,0 +1,13 @@
+apiVersion: test.gogl.ci/v1alpha2
+kind: TestPlan
+metadata:
+  name: Release Branch
+
+validations:
+  - name: Release branch pipeline is valid
+    defaultBranch: "master"
+    branch: "prefix/1.0.x"
+
+tests:
+  - name: Release branch jobs
+    test: release_branch.go

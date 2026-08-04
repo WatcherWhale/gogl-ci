@@ -8,8 +8,29 @@ env:
   IMAGE_NAME: watcherwhale/gogl
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Generate
+        run: go generate ./...
+
+      - name: Test
+        run: go test -v $(go list ./... | grep -v github.com/watcherwhale/gogl-ci/internal/tests/testplans/v1alpha2/simple/plans)
+
   build:
     runs-on: ubuntu-latest
+    needs: test
     permissions:
       contents: read
       packages: write
