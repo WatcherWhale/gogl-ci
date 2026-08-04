@@ -3,6 +3,7 @@ package interpreter
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/watcherwhale/gogl-ci/pkg/rules/lexer"
 )
@@ -38,7 +39,7 @@ func (o *Operator) Eval(input map[string]string) (any, error) {
 			return false, nil
 		}
 
-		regex, err := regexp.Compile(rVal.(string))
+		regex, err := regexp.Compile(strings.ReplaceAll(rVal.(string), "\\/", "/"))
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +50,7 @@ func (o *Operator) Eval(input map[string]string) (any, error) {
 			return true, nil
 		}
 
-		regex, err := regexp.Compile(rVal.(string))
+		regex, err := regexp.Compile(strings.ReplaceAll(rVal.(string), "\\/", "/"))
 		if err != nil {
 			return nil, err
 		}

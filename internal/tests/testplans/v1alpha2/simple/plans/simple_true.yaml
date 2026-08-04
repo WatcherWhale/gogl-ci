@@ -4,7 +4,7 @@ metadata:
   name: Simple True
 tests:
   - name: "True"
-    test: simple_true.go
+    test: true/simple_true.go
 validations:
   - name: Master
     defaultBranch: "master"

@@ -11,6 +11,7 @@ var (
 		"VAR":     "hello",
 		"VARS":    "test",
 		"VERSION": "15.720.1",
+		"BRANCH":  "prefix/1.0.x",
 	}
 
 	TEST_CASES []struct {
@@ -44,6 +45,8 @@ var (
 		{`$VERSION !~ /\d+/`, false},
 		{`$VAR =~ /\d+/`, false},
 		{`$VAR !~ /\d+/`, true},
+		{`$BRANCH =~ /^prefix\/[0-9]+\.[0-9]+\.x$/`, true},
+		{`$BRANCH !~ /^prefix\/[0-9]+\.[0-9]+\.x$/`, false},
 		{``, true},
 	}
 )
